@@ -1,9 +1,15 @@
 # immutable-hash-trie
 
+Pure string:val storage, using structural sharing.
+
 ## Why
 
-## Example
+This module forms a possible basis for effecient immutable datastructures; such as those found in Clojure's PersistentHashMap and PersistentVector.
 
-## API 
+## Docs
 
-## Install 
+*Documentation coming soon*.
+
+## Install
+
+npm install immutable-hash-trie

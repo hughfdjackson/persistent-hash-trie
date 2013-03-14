@@ -1,10 +1,14 @@
 {
   "name": "immutable-hash-trie",
+  "description": "Pure string:val storage, using structural sharing",
   "version": "0.1.0",
   "main": "src/immutable-hash-trie.js",
   "scripts": {
     "test": "mocha --ui qunit",
     "prepublish": "npm test"
+  },
+  "dependencies": {
+    "string-hash": "1.1.0"
   },
   "repository": {
     "type": "git",
