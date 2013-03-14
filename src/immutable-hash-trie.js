@@ -3,18 +3,14 @@
 var u = require('./util')
 var hash = require('string-hash')
 
-// # hashing operations
+//# Hashing functions
 
-// mask :: int, int -> int
+// mask :: Int, Int -> Int
 // get a <= 5 bit section of a hash, shifted from the left position
 var mask = function(hash, from){ return (hash >>> from) & 0x01f }
 var hashMask = function(val, from){ return mask(hash(val), from) }
 
-
-
-// path :: string -> [int]
-// get the maximal path to a key
-var path =  function(k){ return hashPath(hash(k)) }
+//# Node Types
 
 var Trie = function(children){
     return Object.freeze({ type: 'trie', children: Object.freeze(children || {}) })
@@ -28,7 +24,9 @@ var Hashmap = function(values){
     return Object.freeze({ type: 'hashmap', values: Object.freeze(values) })
 }
 
-// has :: node, [int], string -> bool
+//# CRUD functions - has/get/assoc/dissoc
+
+// has :: Node, String, (Int)-> Bool
 var has = function(trie, key, depth){
     return hasFns[trie.type](trie, key, depth || 0)
 }
@@ -47,7 +45,7 @@ var hasFns = {
     hashmap: function(){} // missing case?
 }
 
-// get :: node, [int], string -> val
+// get :: Node, String, (Int) -> Value
 var get = function(trie, key, depth){
     return getFns[trie.type](trie, key, depth)
 }
@@ -74,6 +72,7 @@ var copyAdd = function(o, k, v){
     return o
 }
 
+// assoc :: Node, String, Value, (Int) -> Trie
 var assoc = function(node, key, val, depth){
     return assocFns[node.type](node, key, val, depth || 0)
 }
@@ -86,7 +85,7 @@ var assocFns = {
         else                        return Trie(copyAdd(trie.children, hashMask(key, depth), assoc(child, key, val, depth + 1)))
     },
     value: function(value, key, val, depth){
-        if ( value.key === key ) return Value(key, val, path)
+        if ( value.key === key ) return Value(key, val)
 
         // resolve shallow conflict
         if ( hashMask(key, depth) !== hashMask(value.key, depth) ) {
@@ -126,7 +125,7 @@ var copyDissoc = function(o, k){
     return o
 }
 
-// dissoc :: node, path, key -> Trie
+// dissoc :: Node, String, (Int) -> Trie
 var dissoc = function(node, key, depth){
     return dissocFns[node.type](node, key, depth)
 }
@@ -158,7 +157,7 @@ var dissocFns = {
 }
 
 
-// transient :: node -> Object
+// transient :: Node -> Object
 var transient = function(node){
     return transientFns[node.type](node)
 }
@@ -186,7 +185,6 @@ var transientFns = {
         else                   return {}
     }
 }
-
 
 
 module.exports = {
