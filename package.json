@@ -1,0 +1,16 @@
+{
+  "name": "immutable-hash-trie",
+  "version": "0.1.0",
+  "main": "src/immutable-hash-trie.js",
+  "scripts": {
+    "test": "mocha --ui qunit",
+    "prepublish": "npm test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/hughfdjackson/immutable-hash-trie.git"
+  },
+  "keywords": [],
+  "author": "hughfdjackson",
+  "license": "BSD"
+}
