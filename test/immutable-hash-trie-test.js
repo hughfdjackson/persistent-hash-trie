@@ -1,226 +1,13 @@
+'use strict'
+
 var a = require('assert')
-var h = require('..')
+var ht = require('..')
 
-suite('hamt - has')
-
-test('shallow', function(){
-    var t = h.Trie({ 3: h.Value('foo', 'bar', [3, 5, 6]) })
-    a.ok(h.has(t, [3, 3, 5, 6], 'foo'))
-    a.ok(!h.has(t, [3, 3, 5, 6], 'bar'))
-    a.ok(!h.has(t, [4, 3, 5, 6], 'quux'))
-
-})
-
-test('1 deep', function(){
-    var t = h.Trie({ 3: h.Trie({ 3: h.Value('foo', 'bar', [5, 6]) }) })
-    a.ok(h.has(t, [3, 3, 5, 6], 'foo'))
-    a.ok(!h.has(t, [3, 3, 5, 6], 'bar'))
-    a.ok(!h.has(t, [9, 3, 5, 6], 'quux'))
-})
-
-test('2 deep', function(){
-    var t = h.Trie({
-        3: h.Trie({
-            3: h.Trie({
-                5: h.Trie({
-                    6: h.Value('foo', 'bar', []) }) }) }) })
-
-    a.ok(h.has(t, [3, 3, 5, 6], 'foo'))
-    a.ok(!h.has(t, [3, 3, 5, 6], 'bar'))
-    a.ok(!h.has(t, [9, 3, 5, 6], 'quux'))
-})
-
-suite('hamt - get')
-
-test('shallow', function(){
-    var t = h.Trie({ 3: h.Value('foo', 'bar', [3, 5, 6]) })
-    a.equal(h.get(t, [3, 3, 5, 6], 'foo'), 'bar')
-    a.equal(h.get(t, [3, 3, 5, 6], 'bar'), undefined)
-    a.equal(h.get(t, [9, 3, 5, 6], 'quux'), undefined)
-})
-
-test('1 deep', function(){
-    var t = h.Trie({ 3: h.Trie({ 3: h.Value('foo', 'bar', [5, 6]) }) })
-    a.equal(h.get(t, [3, 3, 5, 6], 'foo'), 'bar')
-    a.equal(h.get(t, [3, 3, 5, 6], 'bar'), undefined)
-    a.equal(h.get(t, [9, 3, 5, 6], 'quux'), undefined)
-})
-
-test('2 deep', function(){
-    var t = h.Trie({
-        3: h.Trie({
-            3: h.Trie({
-                5: h.Trie({
-                    6: h.Value('foo', 'bar', []) }) }) }) })
-
-    a.equal(h.get(t, [3, 3, 5, 6], 'foo'), 'bar')
-    a.equal(h.get(t, [3, 3, 5, 6], 'bar'), undefined)
-    a.equal(h.get(t, [4, 3, 5, 6], 'quux'), undefined)
-})
-
-test('hashmap', function(){
-    var t = h.Trie({ 3: h.Hashmap({ 'foo': h.Value('foo', 'bar', []) }) })
-
-    a.equal(h.get(t, [3], 'foo'), 'bar')
-})
-
-suite('hamt - set')
-
-test('shallow', function(){
-    var t1 = h.Trie({})
-    var t2 = h.set(t1, [3, 3, 4, 5], 'wiggle', 'quux')
-
-    a.deepEqual(t2, h.Trie({ 3: h.Value('wiggle', 'quux', [3, 4, 5]) }))
-})
-
-test('overwrite', function(){
-    var t1 = h.Trie({ 3: h.Value('wiggle', 'quux', [3, 4, 5]) })
-    var t2 = h.set(t1, [3, 3, 4, 5], 'wiggle', 'baz')
-
-    a.deepEqual(t1, h.Trie({ 3: h.Value('wiggle', 'quux', [3, 4, 5]) }))
-    a.deepEqual(t2, h.Trie({ 3: h.Value('wiggle', 'baz', [3, 4, 5]) }))
-})
-
-
-test('shallow conflict', function(){
-    var t1 = h.Trie({ 3: h.Value('foo', 'bar', [3, 5, 6]) })
-    var t2 = h.set(t1, [3, 4, 4, 5], 'wibble', 'quux')
-
-    a.deepEqual(t2, h.Trie({
-        3: h.Trie({
-                    4: h.Value('wibble', 'quux', [4, 5]),
-                    3: h.Value('foo', 'bar', [5, 6]) }) }) )
-})
-
-test('deep conflict', function(){
-    var t1 = h.Trie({ 3: h.Value('foo', 'bar', [3, 5, 6]) })
-    var t2 = h.set(t1, [3, 3, 4, 5], 'wrinkle', 'luux')
-
-    var expected = h.Trie({
-        3: h.Trie({
-            3: h.Trie({
-                    4: h.Value('wrinkle', 'luux', [5]),
-                    5: h.Value('foo', 'bar', [6]) }) }) })
-
-    a.deepEqual(t2, expected)
-})
-
-test('deeper conflict', function(){
-    var t1 = h.Trie({
-        3: h.Trie({
-            3: h.Value('foo', 'bar', [5, 6]) }) })
-    var t2 = h.set(t1, [3, 3, 4, 5], 'wrinkle', 'luux')
-
-    var expected = h.Trie({
-        3: h.Trie({
-            3: h.Trie({
-                    4: h.Value('wrinkle', 'luux', [5]),
-                    5: h.Value('foo', 'bar', [6]) }) }) })
-
-    a.deepEqual(t2, expected)
-})
-
-test('deepest conflict', function(){
-    var t1 = h.Trie({ 3: h.Value('foo', 'bar', []) })
-    var t2 = h.set(t1, [3], 'squid', 'bizz')
-
-
-    var expected = h.Trie({
-        3: h.Hashmap({
-            'foo': h.Value('foo', 'bar', []),
-            'squid': h.Value('squid', 'bizz', []) }) })
-
-    a.deepEqual(t2, expected)
-})
-
-test('overwriting deep conflict', function(){
-    var t1 = h.Hashmap({ 'foo': h.Value('foo', 'bar', []) })
-    var t2 = h.set(t1, [], 'bar', 'bizz')
-
-    var expected = h.Hashmap({
-        foo: h.Value('foo', 'bar', []),
-        bar: h.Value('bar', 'bizz', []) })
-
-    a.deepEqual(t2, expected)
-})
-
-suite('remove')
-
-test('shallow', function(){
-    var t1 = h.Trie({ 3: h.Value('foo', 'bar', [3]) })
-    var t2 = h.remove(t1, [3, 3], 'foo')
-
-    a.deepEqual(t2, h.Trie({}))
-})
-
-test('resolves shallow conflict', function(){
-    var t1 = h.Trie({
-            3: h.Trie({
-                4: h.Value('wibble', 'quux', [4, 5]),
-                3: h.Value('foo', 'bar', [5, 6]) }) })
-
-    var t2 = h.remove(t1, [3, 4, 4, 5], 'wibble')
-
-    var expected = h.Value('foo', 'bar', [3, 3, 5, 6])
-
-    a.deepEqual(t2, expected)
-})
-
-test('resolves deep conflict', function(){
-    var t1 = h.Trie({
-            3: h.Trie({
-                5: h.Trie({
-                    4: h.Value('bar', 'quux', [5]),
-                    3: h.Value('foo', 'bar', [6]) }) }),
-            4: h.Value('baz', 'quux', [2, 3, 4]) })
-
-    var t2 = h.remove(t1, [3, 5, 4, 5], 'bar')
-
-    var expected = h.Trie({
-        3: h.Value('foo', 'bar', [5, 3, 6]),
-        4: h.Value('baz', 'quux', [2, 3, 4]) })
-
-    a.deepEqual(t2, expected)
-})
-
-test('resolves deep conflict with hashmap',  function(){
-    var t1 = h.Trie({
-            3: h.Trie({
-                5: h.Hashmap({
-                    bar: h.Value('bar', 'quux', []),
-                    foo: h.Value('foo', 'bar', []) }) }),
-            4: h.Value('baz', 'quux', [2, 3, 4]) })
-
-    var t2 = h.remove(t1, [3, 5], 'foo')
-
-    var expected = h.Trie({
-        3: h.Value('bar', 'quux', [5]),
-        4: h.Value('baz', 'quux', [2, 3, 4]) })
-
-    a.deepEqual(t2, expected)
-})
-
-suite('hamt - transient')
-
-test('transient', function(){
-    var t1 = h.Trie({
-            3: h.Trie({
-                5: h.Hashmap({
-                    bar: h.Value('bar', 'quux', []),
-                    foo: h.Value('foo', 'bar', []) }) }),
-            4: h.Value('baz', 'quux', [2, 3, 4]) })
-
-    var o = h.transient(t1)
-
-    a.deepEqual(o, { bar: 'quux', foo: 'bar', baz: 'quux' })
-})
-
-
-suite('hamt - nodes')
+suite('immutable-hash-trie: nodes')
 
 test('Trie', function(){
     var children = { 0: {} }
-    var t = h.Trie(children)
+    var t = ht.Trie(children)
 
     a.equal(t.type, 'trie')
     a.deepEqual(t.children, children)
@@ -231,7 +18,7 @@ test('Trie', function(){
 test('Value', function(){
     var key = 'my-key'
     var val = 'my-val'
-    var v   = h.Value(key, val)
+    var v   = ht.Value(key, val)
 
     a.equal(v.type, 'value')
     a.equal(v.value, val)
@@ -242,7 +29,7 @@ test('Value', function(){
 
 test('Hashmap', function(){
     var values = { 0: {} }
-    var hm     = h.Hashmap(values)
+    var hm     = ht.Hashmap(values)
 
     a.equal(hm.type, 'hashmap')
     a.deepEqual(hm.values, values)
@@ -250,26 +37,48 @@ test('Hashmap', function(){
     a.ok(Object.isFrozen(hm))
 })
 
-test('path', function(){
-    var priv = h['-']
-    a.deepEqual(h.path('foo'), priv.hashPath(priv.hash('foo')), 'keyPath is hashPath . hash')
+
+suite('immutable-hash-trie: basic')
+
+test('assoc/get 1', function(){
+    var t = ht.assoc(ht.Trie(), 'name', 'hugh')
+
+    a.equal(ht.get(t, 'name'), 'hugh')
+    a.equal(ht.get(t, 'age'), undefined)
 })
 
+test('assoc/has 1', function(){
+    var t = ht.assoc(ht.Trie(), 'name', 'hugh')
 
-suite('hamt - private')
-
-test('-mask5', function(){
-    var bits  = parseInt('00111110000011111000001111100000', 2)
-    var mask5 = h['-'].mask5
-
-    a.equal(mask5(bits, 0).toString(2), '0')
-    a.equal(mask5(bits, 5).toString(2), '11111')
+    a.equal(ht.has(t, 'name'), true)
+    a.equal(ht.has(t, 'age'), false)
 })
 
-test('hashPath', function(){
-    var bits    = parseInt('00111110000011111000001111100001', 2),
-        path    = h['-'].hashPath(bits),
-        strPath = path.map(function(v){ return v.toString(2) })
+test('assoc/dissoc 1', function(){
+    var t1 = ht.assoc(ht.Trie(), 'name', 'hugh')
+    var t2 = ht.dissoc(t1, 'name')
 
-    a.deepEqual(strPath, ['1', '11111', '0', '11111', '0', '11111', '0'], 'hashPath splits into groups of 5 bits where possible, reversing for natural traversal')
+    a.equal(ht.has(t1, 'name'), true)
+    a.equal(ht.has(t2, 'name'), false)
+})
+
+test('assoc 2', function(){
+    var t1 = ht.assoc(ht.Trie(), 'name', 'hugh')
+    var t2 = ht.assoc(t1, 'last-name', 'jackson')
+
+    a.equal(ht.has(t1, 'name'), true)
+    a.equal(ht.has(t1, 'last-name'), false)
+
+    a.equal(ht.has(t2, 'name'), true)
+    a.equal(ht.has(t2, 'last-name'), true)
+})
+
+suite('hamt - transient')
+
+test('transient', function(){
+    var t1 = ht.assoc(ht.Trie(), 'name', 'hugh')
+    var t2 = ht.assoc(t1, 'last-name', 'jackson')
+
+    var o = ht.transient(t2)
+    a.deepEqual(o, { name: 'hugh', 'last-name': 'jackson' })
 })

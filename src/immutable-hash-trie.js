@@ -3,60 +3,70 @@
 var u = require('./util')
 var hash = require('string-hash')
 
+// # hashing operations
+
+// mask :: int, int -> int
+// get a <= 5 bit section of a hash, shifted from the left position
+var mask = function(hash, from){ return (hash >>> from) & 0x01f }
+var hashMask = function(val, from){ return mask(hash(val), from) }
+
+
+
+// path :: string -> [int]
+// get the maximal path to a key
+var path =  function(k){ return hashPath(hash(k)) }
+
 var Trie = function(children){
-    return Object.freeze({ type: 'trie', children: Object.freeze(children) })
+    return Object.freeze({ type: 'trie', children: Object.freeze(children || {}) })
 }
 
-var Value = function(key, value, path){
-    return Object.freeze({ type: 'value', key: key, value: value, path: path })
+var Value = function(key, value){
+    return Object.freeze({ type: 'value', key: key, value: value })
 }
 
 var Hashmap = function(values){
     return Object.freeze({ type: 'hashmap', values: Object.freeze(values) })
 }
 
-
 // has :: node, [int], string -> bool
-var has = function(trie, path, key){
-    return hasFns[trie.type](trie, path, key)
+var has = function(trie, key, depth){
+    return hasFns[trie.type](trie, key, depth || 0)
 }
 
 var hasFns = {
-    trie: function(trie, path, key){
-        var child = trie.children[path[0]]
+    trie: function(trie, key, depth){
+        var child = trie.children[hashMask(key, depth)]
+
         if ( child === undefined )    return false
-        if ( child.type === 'value' ) return has(child, path, key)
-        if ( child.type === 'trie' )  return has(child, path.slice(1), key)
+        if ( child.type === 'value' ) return has(child, key, depth)
+        if ( child.type === 'trie' )  return has(child, key, depth + 1)
     },
-    value: function(value, path, key){
-        if ( value.key === key ) return true
-        else                     return false
+    value: function(value, key, depth){
+        return value.key === key
     },
     hashmap: function(){} // missing case?
 }
 
 // get :: node, [int], string -> val
-var get = function(trie, path, key){
-    return getFns[trie.type](trie, path, key)
+var get = function(trie, key, depth){
+    return getFns[trie.type](trie, key, depth)
 }
 
 var getFns = {
-    trie: function(trie, path, key){
-        var child = trie.children[path[0]]
+    trie: function(trie, key, depth){
+        var child = trie.children[hashMask(key, depth)]
         if ( child === undefined )    return undefined
-        if ( child.type === 'value' ) return get(child, path, key)
-        else                          return get(child, path.slice(1), key)
+        if ( child.type === 'value' ) return get(child, key, depth)
+        else                          return get(child, key, depth + 1)
     },
-    value: function(value, path, key){
+    value: function(value, key, depth){
         if ( value.key === key ) return value.value
-        else                     return undefined
     },
-    hashmap: function(hashmap, path, key){
+    hashmap: function(hashmap, key, depth){
         var v = hashmap.values[key]
         if ( v ) return v.value
     }
 }
-
 
 var copyAdd = function(o, k, v){
     o = u.clone(o)
@@ -64,86 +74,85 @@ var copyAdd = function(o, k, v){
     return o
 }
 
-// set :: node, path, string, val -> Trie
-var set = function(node, path, key, val){
-    return setFns[node.type](node, path, key, val)
+var assoc = function(node, key, val, depth){
+    return assocFns[node.type](node, key, val, depth || 0)
 }
 
-var setFns = {
-    trie: function(trie, path, key, val){
-        var child = trie.children[path[0]]
+var assocFns = {
+    trie: function(trie, key, val, depth){
+        var child = trie.children[hashMask(key, depth)]
 
-        if ( child === undefined  ) return Trie(copyAdd(trie.children, path[0], Value(key, val, path.slice(1))))
-        else                        return Trie(copyAdd(trie.children, path[0], set(child, path.slice(1), key, val)))
+        if ( child === undefined  ) return Trie(copyAdd(trie.children, hashMask(key, depth), Value(key, val)))
+        else                        return Trie(copyAdd(trie.children, hashMask(key, depth), assoc(child, key, val, depth + 1)))
     },
-    value: function(value, path, key, val){
+    value: function(value, key, val, depth){
         if ( value.key === key ) return Value(key, val, path)
 
         // resolve shallow conflict
-        if ( path[0] !== value.path[0] ) {
+        if ( hashMask(key, depth) !== hashMask(value.key, depth) ) {
             var cs = {}
-            cs[value.path[0]] = Value(value.key, value.value, value.path.slice(1))
-            cs[path[0]]       = Value(key, val, path.slice(1))
+            cs[hashMask(value.key, depth)] = Value(value.key, value.value)
+            cs[hashMask(key, depth)]       = Value(key, val)
             return Trie(cs)
         }
 
         // resolve deep conflict
-        if ( path.length !== 0 ) {
+        if ( depth !== 6 ) {
 
-            var val1 = Value(value.key, value.value, value.path.slice(1))
-            var val2 = Value(key, val, path.slice(1))
+            var val1 = Value(value.key, value.value)
+            var val2 = Value(key, val)
 
             var cs = {}
-            cs[path[0]] = val2
-            return set(Trie(cs), value.path, value.key, value.value)
+            cs[hashMask(key, depth)] = val2
+            return assoc(Trie(cs), value.key, value.value, depth + 1)
         }
 
         // resolve empty path - store them in a hashmap
         var cs = {}
-        cs[key] = Value(key, val, path)
+        cs[key] = Value(key, val)
         cs[value.key] = value
 
         return Hashmap(cs)
     },
-    hashmap: function(hashmap, path, key, val){
-        var v = copyAdd(hashmap.values, key, Value(key, val, []))
+    hashmap: function(hashmap, key, val, depth){
+        var v = copyAdd(hashmap.values, key, Value(key, val))
         return Hashmap(v)
     }
 }
 
-var copyRemove = function(o, k){
+var copyDissoc = function(o, k){
     o = u.clone(o)
     delete o[k]
     return o
 }
 
-// remove :: node, path, key -> Trie
-var remove = function(node, path, key){
-    return removeFns[node.type](node, path, key)
+// dissoc :: node, path, key -> Trie
+var dissoc = function(node, key, depth){
+    return dissocFns[node.type](node, key, depth)
 }
 
-var removeFns = {
-    trie: function(trie, path, key){
-        var child = trie.children[path[0]]
+var dissocFns = {
+    trie: function(trie, key, depth){
+        var child = trie.children[hashMask(key, depth)]
 
         var t = child      === undefined                     ? trie
               : child.type === 'value' && child.key !== key  ? trie
-              : child.type === 'value' && child.key === key  ? Trie(copyRemove(trie.children, path[0]))
-              :                                                Trie(copyAdd(trie.children, path[0], remove(child, path.slice(1), key)))
+              : child.type === 'value' && child.key === key  ? Trie(copyDissoc(trie.children, hashMask(key, depth)))
+              :                                                Trie(copyAdd(trie.children, path[0], dissoc(child, key, hashMask(key, depth))))
 
         var keys = Object.keys(t.children)
         var child = t.children[keys[0]]
 
-        if ( keys.length === 1 && child.type === 'value' ) return Value(child.key, child.value, [+keys[0]].concat(child.path))
+        if ( keys.length === 1 && child.type === 'value' ) return Value(child.key, child.value)
         else                                               return t
     },
     value: function(){},
-    hashmap: function(map, path, key){
-        var ret = copyRemove(map.values, key)
+    hashmap: function(map, key, depth){
+        var ret = copyDissoc(map.values, hashMask(key, depth))
         var keys = Object.keys(ret)
         var child = ret[keys[0]]
 
-        if ( keys.length === 1 ) return Value(child.key, child.value, [])
+        if ( keys.length === 1 ) return Value(child.key, child.value)
         else                     return Hashmap(ret)
     }
 }
@@ -179,37 +188,14 @@ var transientFns = {
 }
 
 
-// hashing operations
-
-// mask5 :: int, int -> int
-// get a <= 5 bit section of a hash, shifted from the left position
-var mask5 = function(hash, from){ return (hash >>> from) & 0x01f }
-
-// hashPath :: int -> [int]
-// get the path from an already hashed key
-var hashPath = function(hash){
-    return splitPositions.map(mask5.bind(null, hash))
-}
-var splitPositions = [0, 5, 10, 15, 20, 25, 30]
-
-// path :: string -> [int]
-// get the maximal path to a key
-var path =  function(k){ return hashPath(hash(k)) }
 
 module.exports = {
-    Trie      : Trie,
-    Value     : Value,
-    Hashmap   : Hashmap,
-    path      : path,
-    has       : has,
-    get       : get,
-    set       : set,
-    remove    : remove,
+    Trie    : Trie,
+    Value   : Value,
+    Hashmap : Hashmap,
+    has     : has,
+    get     : get,
+    assoc   : assoc,
+    dissoc  : dissoc,
     transient : transient
-}
-
-module.exports['-'] = {
-    hashPath  : hashPath,
-    mask5     : mask5,
-    hash      : hash
 }
