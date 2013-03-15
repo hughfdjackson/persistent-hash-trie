@@ -1,6 +1,30 @@
 'use strict'
 
-var u = require('./util')
+var util = require('./util')
+
+//# Immutable Hash Trie
+
+// A Trie is a specialised version of a Tree, in which nodes can be found by navigating a 'path'.
+// For instance, a dictionary Trie may start with a root node, have A-Z as the child nodes.
+// Those child nodes may also be Tries (commonly referred to as sub-Tries).  Therefore, if
+// you want to look up 'ANT', you can see if it's in the Trie by navigating to node A, then to
+// node A's child node N, then to that node's child node T.  i.e. the path for ANT is A->N->T
+
+// A Hash Trie forms its path by taking a hash of the string that is being looked up, and
+// splitting that into parts:
+// ANT -> 01101101101110111010111011000011 -> 01101->10110->11101->11010->11101->10000->11
+// In this scheme, a 32-bit hash is taken, and split into path parts that are maximally
+// 5 bits long.  Each Trie therefore has children from 00000-11111 (or 0-32 in decimal).
+
+// Hash Tries allow us to store nodes at a shallow depth.  For instance, if there is only
+// one member of the Trie whose key's first path part is 01101, then we can store the value
+// directly as the root Trie's 01101 child node.  Why go deeper?  It just costs more to retrieve.
+
+// It also allows us to keep the Trie fairly balanced; since a hash function should be
+// have an even distribution of hashes, even if the inputs share common prefixes.
+// If we used the first 2 letters of a word, for instance, we'd end up with lots of
+// nodes in the 'un' and 'th' paths, and not many in the 'tx' path.
+
 
 //# Hashing functions
 
@@ -107,7 +131,7 @@ var getFns = {
 
 // necessary for updating nodes in `assoc`
 var copyAdd = function(obj, key, val){
-    obj = u.clone(obj)
+    obj = util.clone(obj)
     obj[key] = val
     return obj
 }
@@ -186,7 +210,7 @@ var assocFns = {
 // creates a new object, but without a key.
 // Used in `dissoc`
 var copyDissoc = function(obj, key){
-    obj = u.clone(obj)
+    obj = util.clone(obj)
     delete obj[key]
     return obj
 }
@@ -265,7 +289,7 @@ var transientFns = {
         var vals = keys.map(function(key){
             return transient(trie.children[key])
         })
-        if ( vals.length > 0 ) return vals.reduce(u.extend)
+        if ( vals.length > 0 ) return vals.reduce(util.extend)
         else                   return {}
     },
     value: function(value){
@@ -278,11 +302,10 @@ var transientFns = {
         var vals = keys.map(function(key){
             return transient(hashmap.values[key])
         })
-        if ( vals.length > 0 ) return vals.reduce(u.extend)
+        if ( vals.length > 0 ) return vals.reduce(util.extend)
         else                   return {}
     }
 }
-
 
 module.exports = {
     Trie    : Trie,

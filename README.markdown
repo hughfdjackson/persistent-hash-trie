@@ -12,4 +12,4 @@ This module forms a possible basis for effecient immutable datastructures; such 
 
 ## Install
 
-npm install immutable-hash-trie
+`npm install immutable-hash-trie`
