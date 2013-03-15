@@ -14,7 +14,7 @@ var util = require('./util')
 // splitting that into parts:
 // ANT -> 01101101101110111010111011000011 -> 01101->10110->11101->11010->11101->10000->11
 // In this scheme, a 32-bit hash is taken, and split into path parts that are maximally
-// 5 bits long.  Each Trie therefore has children from 00000-11111 (or 0-32 in decimal).
+// 5 bits long.  Each Trie therefore has children from 00000-11111 (or 0-31 in decimal).
 
 // Hash Tries allow us to store nodes at a shallow depth.  For instance, if there is only
 // one member of the Trie whose key's first path part is 01101, then we can store the value
