@@ -25,6 +25,10 @@ var util = require('./util')
 // If we used the first 2 letters of a word, for instance, we'd end up with lots of
 // nodes in the 'un' and 'th' paths, and not many in the 'tx' path.
 
+// An Immutable Hash Trie is a Hash Trie in which any commonly updating actions - removing,
+// setting or adding values - produce an entirely new Hash Trie, and *don't* affect the
+// original in any way.  This means that the Hash Tries can be shared safely; without fear
+// that updating them will result in a value changing in multiple places in a program.
 
 //# Hashing functions
 
