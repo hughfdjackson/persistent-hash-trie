@@ -30,6 +30,10 @@ var util = require('./util')
 // original in any way.  This means that the Hash Tries can be shared safely; without fear
 // that updating them will result in a value changing in multiple places in a program.
 
+// To make this distinction clearer, the verbs 'set' and 'remove/delete' have been replaced
+// with assoc (associate a new value with an Immutable Hash Trie), and dissoc (dissociate
+// an existing value with an Immutable Hash Trie).
+
 //# Hashing functions
 
 // String -> Int
