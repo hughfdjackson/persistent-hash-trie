@@ -1,108 +1,170 @@
 'use strict'
 
 var u = require('./util')
-var hash = require('string-hash')
 
 //# Hashing functions
 
-// mask :: Int, Int -> Int
-// get a <= 5 bit section of a hash, shifted from the left position
+// String -> Int
+// produces a 32 bit integer hash
+var hash = require('string-hash')
+
+// Int, Int -> Int
+// gets a <= 5 bit section of a hash, shifted from the left position
+// in practice, a 32 bit splits into 7 chunks - 6 of 5 bits, one of 2
 var mask = function(hash, from){ return (hash >>> from) & 0x01f }
-var hashMask = function(val, from){ return mask(hash(val), from) }
+
+// String, Int -> Int
+// gets a chunk of a hash, given a string
+var hashMask = function(str, from){ return mask(hash(str), from) }
+
 
 //# Node Types
 
+// Object -> Trie
+// a Trie is a store of children values; the most basic type of non-leaf node.
 var Trie = function(children){
     return Object.freeze({ type: 'trie', children: Object.freeze(children || {}) })
 }
 
+// String, JSValue -> Value
+// Node that represents a specific value
 var Value = function(key, value){
     return Object.freeze({ type: 'value', key: key, value: value })
 }
 
+// { JSValue } -> Hashmap
+// a Trie will have a max depth of 7 (6, if 0 indexed).  After that, additional
+// values will just slung into a hashmap node
 var Hashmap = function(values){
     return Object.freeze({ type: 'hashmap', values: Object.freeze(values) })
 }
 
+
 //# CRUD functions - has/get/assoc/dissoc
 
-// has :: Node, String, (Int)-> Bool
+// Node, String, (Int)-> Bool
+
+// Trie-equivalent of the 'in' operator
+
+// Has recurses down a node, using hashMask to navigate a 'path' down branches.
+// If a value node is found, if its key is equal to the key provided, then the
+// Trie contains the key, and true is returned.
+
+// Hashmaps store values in the outermost leaves when necessary.  If they contain
+// a key, it also means that the key is in the trie,.
 var has = function(trie, key, depth){
     return hasFns[trie.type](trie, key, depth || 0)
 }
 
 var hasFns = {
-    trie: function(trie, key, depth){
-        var child = trie.children[hashMask(key, depth)]
+    trie: function(node, key, depth){
+        var child = node.children[hashMask(key, depth)]
 
         if ( child === undefined )    return false
         if ( child.type === 'value' ) return has(child, key, depth)
         if ( child.type === 'trie' )  return has(child, key, depth + 1)
     },
-    value: function(value, key, depth){
-        return value.key === key
+    value: function(node, key){
+        return node.key === key
     },
-    hashmap: function(){} // missing case?
+    hashmap: function(node, key){
+        return key in node.values
+    }
 }
 
-// get :: Node, String, (Int) -> Value
+// Node, String, (Int) -> Value
+
+// Trie-equivalent of dot or bracket syntax - retrieves a value assocaited with a key
+// or undefined.
+
+// get recurses down the Trie, similarly to has.  If it finds a matching key, instead
+// of returning true or false, however, it unpacks the value associated with the key
+// and returns that instead.
 var get = function(trie, key, depth){
     return getFns[trie.type](trie, key, depth)
 }
 
 var getFns = {
-    trie: function(trie, key, depth){
-        var child = trie.children[hashMask(key, depth)]
+    trie: function(node, key, depth){
+        var child = node.children[hashMask(key, depth)]
         if ( child === undefined )    return undefined
         if ( child.type === 'value' ) return get(child, key, depth)
         else                          return get(child, key, depth + 1)
     },
-    value: function(value, key, depth){
-        if ( value.key === key ) return value.value
+    value: function(node, key, depth){
+        if ( node.key === key ) return node.value
     },
-    hashmap: function(hashmap, key, depth){
-        var v = hashmap.values[key]
-        if ( v ) return v.value
+    hashmap: function(node, key, depth){
+        return node.values[key]
     }
 }
 
-var copyAdd = function(o, k, v){
-    o = u.clone(o)
-    o[k] = v
-    return o
+
+// Object, String, JSValue -> Object
+
+// creates a shallow clone of an object, adding or replacing a key:val pair
+// with the one provided
+
+// necessary for updating nodes in `assoc`
+var copyAdd = function(obj, key, val){
+    obj = u.clone(obj)
+    obj[key] = val
+    return obj
 }
 
-// assoc :: Node, String, Value, (Int) -> Trie
+
+//  Node, String, JSValue, (Int) -> Trie
+
+// assoc 'associates' a new value with a Trie.  It does so by finding the
+// appropriate place for the new node, then creating a copy of the parent
+// nodes, adding in a reference to the newly created child node each time.
+
+// This is called path-copying, since the path from the root node to the new
+// node is copied form one datastructure to the other.  Since the vast majority
+// of data will lie in nodes beneathe these in sizable datastructures, this sharing
+// of data allows for immutable values to be updated relatively effeciently at large
+// size.
+
+// The algorithm is also aware of 'specificity'; i.e. that a value need only be stored
+// at a depth where it can be distinguished uniquely from other values by virtue of its
+// path.  If both 'foo' and 'bar's first 5 bits are 011011, and both are present in the
+// Trie, then they most be stored in a sub-Trie, and use the following 5 bits to differenciate
+// themselves.  If the Trie gets deeper than there are bits in the hash (i.e. a total hash collision)
+// then it simply stores the objects in a Hashmap node.
+
 var assoc = function(node, key, val, depth){
     return assocFns[node.type](node, key, val, depth || 0)
 }
 
 var assocFns = {
-    trie: function(trie, key, val, depth){
-        var child = trie.children[hashMask(key, depth)]
+    trie: function(node, key, val, depth){
+        var path = hashMask(key, depth)
+        var child = node.children[path]
 
-        if ( child === undefined  ) return Trie(copyAdd(trie.children, hashMask(key, depth), Value(key, val)))
-        else                        return Trie(copyAdd(trie.children, hashMask(key, depth), assoc(child, key, val, depth + 1)))
+        if ( child === undefined  ) return Trie(copyAdd(node.children, path, Value(key, val)))
+        else                        return Trie(copyAdd(node.children, path, assoc(child, key, val, depth + 1)))
     },
-    value: function(value, key, val, depth){
+    value: function(node, key, val, depth){
         if ( value.key === key ) return Value(key, val)
 
+        var origPath = hashMask(node.key, depth)
+        var path = hashMask(key, depth)
+
         // resolve shallow conflict
-        if ( hashMask(key, depth) !== hashMask(value.key, depth) ) {
+        if ( origPath !== path ) {
             var cs = {}
-            cs[hashMask(value.key, depth)] = Value(value.key, value.value)
-            cs[hashMask(key, depth)]       = Value(key, val)
+            cs[origPath] = Value(value.key, value.value)
+            cs[path]     = Value(key, val)
             return Trie(cs)
         }
 
         // resolve deep conflict
-        if ( depth !== 6 ) {
-
+        if ( depth < 6 ) {
             var val1 = Value(value.key, value.value)
             var val2 = Value(key, val)
 
             var cs = {}
-            cs[hashMask(key, depth)] = val2
+            cs[path] = val2
             return assoc(Trie(cs), value.key, value.value, depth + 1)
         }
 
@@ -119,31 +181,59 @@ var assocFns = {
     }
 }
 
-var copyDissoc = function(o, k){
-    o = u.clone(o)
-    delete o[k]
-    return o
+// Object, String -> Object
+
+// creates a new object, but without a key.
+// Used in `dissoc`
+var copyDissoc = function(obj, key){
+    obj = u.clone(obj)
+    delete obj[key]
+    return obj
 }
 
-// dissoc :: Node, String, (Int) -> Trie
+// Node, String, (Int) -> Trie
+
+// dissoc (disassociate) returns a new Trie, but without a specified key
+
+// As with assoc, it recurses down the Trie.  If it fails to find a key, then
+// it returns the original Trie, since that is conceptually the same as removing
+// a non-existant key from an object.
+
+// If it finds a Value associated with a key, however, it will create
+// a parent node to that Value that copies all *other* values, but omits
+// the value with the key in question.  As with assoc, it will also produce a
+// copy of *its* parent.  This occurs recursively, and is exactly the same concept
+// as the 'path copying' technique used in assoc.
+
+// If removing a value removes a hash collision, then the Trie node that contained
+// those values can be replaced with just a Value node, which results in a shallower
+// Trie.
 var dissoc = function(node, key, depth){
     return dissocFns[node.type](node, key, depth)
 }
 
 var dissocFns = {
-    trie: function(trie, key, depth){
-        var child = trie.children[hashMask(key, depth)]
+    trie: function(node, key, depth){
+        var path = hashMask(key, depth)
+        var child = node.children[path]
+        var trie
 
-        var t = child      === undefined                     ? trie
-              : child.type === 'value' && child.key !== key  ? trie
-              : child.type === 'value' && child.key === key  ? Trie(copyDissoc(trie.children, hashMask(key, depth)))
-              :                                                Trie(copyAdd(trie.children, path[0], dissoc(child, key, hashMask(key, depth))))
+        // handle the 'missing key' case, returning the Trie
+        if      ( child === undefined ) trie = node
+        else if ( child.type === 'value' && child.key !== key ) trie = node
 
-        var keys = Object.keys(t.children)
-        var child = t.children[keys[0]]
+        // handle the 'present key' cases.  If it's a Value, remove it.  If it's a sub-Trie or Hashmap
+        // recurse to prevent other values from being lost
+        if ( child.type === 'value' && child.key === key ) trie = Trie(copyDissoc(node.children, path))
+        else                                               trie = Trie(copyAdd(node.children, path, dissoc(child, key, path)))
+
+        // if there's only a single value in a Trie node left, then it can be replaced by its value,
+        // allowing us to make the Trie more shallow, and therefore more effecient.
+        var keys = Object.keys(trie.children)
+        var child = trie.children[keys[0]]
 
         if ( keys.length === 1 && child.type === 'value' ) return Value(child.key, child.value)
-        else                                               return t
+        else                                               return trie
     },
     value: function(){},
     hashmap: function(map, key, depth){
@@ -157,7 +247,14 @@ var dissocFns = {
 }
 
 
-// transient :: Node -> Object
+// Node -> Object
+
+// transient returns a mutable version of a Trie.
+
+// It achieves this by recursing down the Trie, finding all the Value nodes
+// (whether stored in a Trie directly, or in a Hashmap node, and returning
+// an objects that eventually get merged together.
+
 var transient = function(node){
     return transientFns[node.type](node)
 }

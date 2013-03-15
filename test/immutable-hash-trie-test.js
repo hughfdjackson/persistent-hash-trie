@@ -3,7 +3,7 @@
 var a = require('assert')
 var ht = require('..')
 
-suite('immutable-hash-trie: nodes')
+suite('immutable-hash-trie: node types')
 
 test('Trie', function(){
     var children = { 0: {} }
@@ -38,7 +38,7 @@ test('Hashmap', function(){
 })
 
 
-suite('immutable-hash-trie: basic')
+suite('immutable-hash-trie: basic CRUD')
 
 test('assoc/get 1', function(){
     var t = ht.assoc(ht.Trie(), 'name', 'hugh')
@@ -72,8 +72,6 @@ test('assoc 2', function(){
     a.equal(ht.has(t2, 'name'), true)
     a.equal(ht.has(t2, 'last-name'), true)
 })
-
-suite('hamt - transient')
 
 test('transient', function(){
     var t1 = ht.assoc(ht.Trie(), 'name', 'hugh')
