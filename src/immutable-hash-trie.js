@@ -12,7 +12,7 @@ var util = require('./util')
 
 // A Hash Trie forms its path by taking a hash of the string that is being looked up, and
 // splitting that into parts:
-// ANT -> 01101101101110111010111011000011 -> 01101->10110->11101->11010->11101->10000->11
+// ANT = 01101101101110111010111011000011 = 01101->10110->11101->11010->11101->10000->11
 // In this scheme, a 32-bit hash is taken, and split into path parts that are maximally
 // 5 bits long.  Each Trie therefore has children from 00000-11111 (or 0-31 in decimal).
 
