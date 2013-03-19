@@ -55,20 +55,20 @@ var hashMask = function(str, from){ return mask(hash(str), from) }
 // Object -> Trie
 // a Trie is a store of children values; the most basic type of non-leaf node.
 var Trie = function(children){
-    return Object.freeze({ type: 'trie', children: Object.freeze(children || {}) })
+    return { type: 'trie', children: children || {} }
 }
 
 // String, JSValue -> Value
 // Node that represents a specific value
 var Value = function(key, value){
-    return Object.freeze({ type: 'value', key: key, value: value })
+    return { type: 'value', key: key, value: value }
 }
 
 // { JSValue } -> Hashmap
 // a Trie will have a max depth of 7 (6, if 0 indexed).  After that, additional
 // values will just slung into a hashmap node
 var Hashmap = function(values){
-    return Object.freeze({ type: 'hashmap', values: Object.freeze(values) })
+    return { type: 'hashmap', values: values }
 }
 
 

@@ -11,8 +11,6 @@ test('Trie', function(){
 
     a.equal(t.type, 'trie')
     a.deepEqual(t.children, children)
-    a.ok(Object.isFrozen(t))
-    a.ok(Object.isFrozen(t.children))
 })
 
 test('Value', function(){
@@ -23,8 +21,6 @@ test('Value', function(){
     a.equal(v.type, 'value')
     a.equal(v.value, val)
     a.equal(v.key, key)
-
-    a.ok(Object.isFrozen(v))
 })
 
 test('Hashmap', function(){
@@ -33,8 +29,6 @@ test('Hashmap', function(){
 
     a.equal(hm.type, 'hashmap')
     a.deepEqual(hm.values, values)
-    a.ok(Object.isFrozen(hm.values))
-    a.ok(Object.isFrozen(hm))
 })
 
 
