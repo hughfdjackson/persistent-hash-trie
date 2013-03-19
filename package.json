@@ -11,6 +11,9 @@
   "dependencies": {
     "string-hash": "1.1.0"
   },
+  "devDependencies": {
+    "mocha": "1.8.1"
+  },
   "repository": {
     "type": "git",
     "url": "https://github.com/hughfdjackson/immutable-hash-trie.git"
