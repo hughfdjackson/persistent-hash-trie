@@ -234,6 +234,15 @@ var copyDissoc = function(obj, key){
     return obj
 }
 
+// Object -> [String]
+
+// get the keys of an object
+var keys = keys || function(o){
+    var a = []
+    for ( var key in o ) a.push(key)
+    return a
+}
+
 // Node, String, (Int) -> Trie
 
 // dissoc (disassociate) returns a new Trie, but without a specified key
@@ -271,20 +280,20 @@ var dissocFns = {
 
         // if there's only a single value in a Trie node left, then it can be replaced by its value,
         // allowing us to make the Trie more shallow, and therefore more effecient.
-        var keys = Object.keys(trie.children)
+        var names = keys(trie.children)
         var child = trie.children[keys[0]]
 
-        if ( keys.length === 1 && child.type === 'value' ) return Value(child.key, child.value)
-        else                                               return trie
+        if ( names.length === 1 && child.type === 'value' ) return Value(child.key, child.value)
+        else                                                 return trie
     },
     value: function(){},
     hashmap: function(map, key, opts, depth){
         var ret = copyDissoc(map.values, hashMask(key, depth, opts.hash))
-        var keys = Object.keys(ret)
-        var child = ret[keys[0]]
+        var names = keys(ret)
+        var child = ret[names[0]]
 
-        if ( keys.length === 1 ) return Value(child.key, child.value)
-        else                     return Hashmap(ret)
+        if ( names.length === 1 ) return Value(child.key, child.value)
+        else                      return Hashmap(ret)
     }
 }
 
@@ -303,11 +312,11 @@ var transient = function(node){
 
 var transientFns = {
     trie: function(trie){
-        var keys = Object.keys(trie.children)
-        var vals = keys.map(function(key){
+        var names = keys(trie.children)
+        var vals = util.map(names, function(key){
             return transient(trie.children[key])
         })
-        if ( vals.length > 0 ) return vals.reduce(util.extend)
+        if ( vals.length > 0 ) return util.reduce(vals, util.extend)
         else                   return {}
     },
     value: function(value){
@@ -316,11 +325,11 @@ var transientFns = {
         return o
     },
     hashmap: function(hashmap){
-        var keys = Object.keys(hashmap.values)
-        var vals = keys.map(function(key){
+        var names = keys(hashmap.values)
+        var vals = names.map(function(key){
             return transient(hashmap.values[key])
         })
-        if ( vals.length > 0 ) return vals.reduce(util.extend)
+        if ( vals.length > 0 ) return util.reduce(vals, util.extend)
         else                   return {}
     }
 }
