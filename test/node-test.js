@@ -1,13 +1,13 @@
 'use strict'
 
 var a = require('assert')
-var ht = require('..')
+var im = require('..')
 
 describe('Nodes', function(){
 	describe('Trie', function(){
 		it('should construct properly', function(){
 			var children = { 0: {} }
-			var t = ht.Trie(children)
+			var t = im.Trie(children)
 
 			a.equal(t.type, 'trie')
 			a.deepEqual(t.children, children)
@@ -18,7 +18,7 @@ describe('Nodes', function(){
 		it('should construct properly', function(){
 			var key = 'my-key'
 			var val = 'my-val'
-			var v   = ht.Value(key, val)
+			var v   = im.Value(key, val)
 
 			a.equal(v.type, 'value')
 			a.equal(v.value, val)
@@ -29,7 +29,7 @@ describe('Nodes', function(){
 	describe('Hashmap', function(){
 		it('should construct properly', function(){
 			var values = { 0: {} }
-			var hm     = ht.Hashmap(values)
+			var hm     = im.Hashmap(values)
 
 			a.equal(hm.type, 'hashmap')
 			a.deepEqual(hm.values, values)
