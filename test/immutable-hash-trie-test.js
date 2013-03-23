@@ -2,6 +2,7 @@
 
 var a = require('assert')
 var ht = require('..')
+var _ = require('lodash')
 
 suite('immutable-hash-trie: node types')
 
@@ -31,6 +32,56 @@ test('Hashmap', function(){
     a.deepEqual(hm.values, values)
 })
 
+
+suite('immutable-hash-trie: hash and eq opts')
+
+test('assoc', function(){
+    // should match any node
+    var equal = function(){ return true }
+    var hash = function(){ return 1 }
+    var opts = { hash: hash, eq: equal }
+
+    var t = ht.assoc(ht.Trie(), 'name', 'hugh', opts)
+
+    a.equal(t.children[1].key, 'name')
+})
+
+test('dissoc', function(){
+
+    // should match any node
+    var equal = function(){ return true }
+    var hash = function(){ return 1 }
+    var opts = { hash: hash, eq: equal }
+
+    var t = ht.assoc(ht.Trie(), 'name', 'hugh', opts)
+    var t = ht.dissoc(t, 'some-non-present-key', opts)
+
+    a.ok(_.isEmpty(t.children))
+})
+
+test('get', function(){
+
+    // should match any node
+    var equal = function(){ return true }
+    var hash = function(){ return 1 }
+    var opts = { hash: hash, eq: equal }
+
+    var t = ht.assoc(ht.Trie(), 'name', 'hugh', opts)
+
+    a.equal(ht.get(t, 'some-non-present-key', opts), 'hugh')
+})
+
+test('has', function(){
+
+    // should match any node
+    var equal = function(){ return true }
+    var hash = function(){ return 1 }
+    var opts = { hash: hash, eq: equal }
+
+    var t = ht.assoc(ht.Trie(), 'name', 'hugh', opts)
+
+    a.equal(ht.has(t, 'some-non-present-key', opts), true)
+})
 
 suite('immutable-hash-trie: basic CRUD')
 

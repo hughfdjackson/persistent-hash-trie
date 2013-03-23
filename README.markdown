@@ -57,6 +57,26 @@ im.has(trie, 'key') //= true
 im.has(trie, 'not-in-here') //= false
 ```
 
+### Extending functionality
+
+Using its default configuration, each of the CRUD functions work on the basis of a provided hash and equality function that only works with string keys.  Making a javascript version of Clojure's PersistentVector or an immutable version of ECMAScript 6's Map (which allows arbitrary javascript values as keys) would require different hash and equality functions for the keys.
+
+In order to override the default ones; pass in an extra options object with each CRUD method
+
+```javascript
+var im = require('immutable-hash-trie')
+
+var opts = {
+	eq: function(a, b){ return a + b },
+	hash: function(key){ return parseInt(key, 10) }
+}
+
+var vector = im.assoc(im.Trie(), 3, 'my-val', opts)
+var val = im.get(vector, 3, opts)
+var vector2 = im.dissoc(vector, 3, opts)
+im.has(vector2, 3, opts) // false
+```
+
 ## Install
 
 `npm install immutable-hash-trie`
