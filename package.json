@@ -5,7 +5,7 @@
   "version": "0.2.0",
   "main": "src/immutable-hash-trie.js",
   "scripts": {
-    "test": "mocha --ui qunit",
+    "test": "mocha",
     "prepublish": "npm test"
   },
   "dependencies": {
@@ -36,7 +36,7 @@
       "safari/5.0.5",
       "safari/5.1"
     ],
-    "harness": "mocha-qunit"
+    "harness": "mocha"
   },
   "keywords": ["immutable", "hash", "trie", "pure", "functional", "datastructure", "bagwell", "clojure"],
   "author": "hughfdjackson",

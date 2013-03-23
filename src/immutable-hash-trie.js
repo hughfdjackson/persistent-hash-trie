@@ -36,17 +36,14 @@ var util = require('./util')
 
 //# Hashing functions
 
-// String -> Int
-// produces a 32 bit integer hash
-var hash = require('string-hash')
-
 // Int, Int -> Int
 // gets a <= 5 bit section of a hash, shifted from the left position
 // in practice, a 32 bit splits into 7 chunks - 6 of 5 bits, one of 2
 var mask = function(hash, from){ return (hash >>> from) & 0x01f }
 
 // String, Int, Function -> Int
-// gets a chunk of a hash, given a string
+// gets a chunk of a hash, given a string and a hashing function
+// the hashing function should return a 32 bit hash.
 var hashMask = function(str, from, hash){ 
     return mask(hash(str), from) 
 }
@@ -56,8 +53,8 @@ var hashMask = function(str, from, hash){
 // hash-table-like behaviour, as the hash-trie has), they can be passed in 
 // as opts to the CRUD functions.  The default ones covers the 80% use-case
 var defaultOpts = { 
-    eq: function(a, b){ return a === b },
-    hash: hash
+    eq  : function(a, b){ return a === b },
+    hash: require('string-hash')
 }
 
 //# Node Types
