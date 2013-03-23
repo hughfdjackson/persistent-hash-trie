@@ -10,7 +10,52 @@ This module forms a possible basis for effecient immutable datastructures; such 
 
 ## Docs
 
-*Documentation coming soon*.
+### Creating a trie
+
+```javascript
+var im = require('immutable-hash-trie')
+
+var trie = im.Trie();
+```
+
+### CRUD Action
+
+#### assoc
+
+Returns a new Trie with the new key:value keys added.
+
+```javascript
+var trie1 = im.Trie();
+var trie2 = im.assoc(trie1, 'key', { value: true })
+```
+
+#### dissoc
+
+Returns a new Trie without a specific key
+
+```javascript
+var trie1 = im.assoc(im.Trie(), 'key', 'val')
+var trie2 = im.dissoc(trie2, 'key')
+```
+
+#### get
+
+Retrieves a value from a Trie.
+
+```javascript
+var trie = im.assoc(im.Trie(), 'key', 'val')
+im.get(trie, 'key') //= 'val'
+```
+
+#### has
+
+Returns `true` or `false`, depending on whether the value is in the Trie.
+
+```javascript
+var trie = im.assoc(im.Trie(), 'key', 'val')
+im.has(trie, 'key') //= true
+im.has(trie, 'not-in-here') //= false
+```
 
 ## Install
 

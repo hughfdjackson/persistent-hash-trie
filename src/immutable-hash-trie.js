@@ -76,7 +76,7 @@ var Hashmap = function(values){
 
 // Node, String, (Int)-> Bool
 
-// Trie-equivalent of the 'in' operator
+// Trie-equivalent of the 'in' operator.
 
 // Has recurses down a node, using hashMask to navigate a 'path' down branches.
 // If a value node is found, if its key is equal to the key provided, then the
