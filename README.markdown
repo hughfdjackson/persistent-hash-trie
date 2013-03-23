@@ -8,6 +8,10 @@ Pure string:val storage, using structural sharing.
 
 This module forms a possible basis for effecient immutable datastructures; such as those found in Clojure's PersistentHashMap and PersistentVector.
 
+## Install
+
+`npm install immutable-hash-trie`
+
 ## Docs
 
 ### Creating a trie
@@ -15,7 +19,7 @@ This module forms a possible basis for effecient immutable datastructures; such 
 ```javascript
 var im = require('immutable-hash-trie')
 
-var trie = im.Trie();
+var trie = im.Trie()
 ```
 
 ### CRUD Action
@@ -25,7 +29,7 @@ var trie = im.Trie();
 Returns a new Trie with the new key:value keys added.
 
 ```javascript
-var trie1 = im.Trie();
+var trie1 = im.Trie()
 var trie2 = im.assoc(trie1, 'key', { value: true })
 ```
 
@@ -53,7 +57,7 @@ Returns `true` or `false`, depending on whether the value is in the Trie.
 
 ```javascript
 var trie = im.assoc(im.Trie(), 'key', 'val')
-im.has(trie, 'key') //= true
+im.has(trie, 'key') 		//= true
 im.has(trie, 'not-in-here') //= false
 ```
 
@@ -77,6 +81,6 @@ var vector2 = im.dissoc(vector, 3, opts)
 im.has(vector2, 3, opts) // false
 ```
 
-## Install
+## Running tests and benchmarks
 
-`npm install immutable-hash-trie`
+`npm test` and `npm run-script benchmark` are your friends.

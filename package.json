@@ -6,7 +6,8 @@
   "main": "src/immutable-hash-trie.js",
   "scripts": {
     "test": "mocha",
-    "prepublish": "npm test"
+    "prepublish": "npm test",
+    "benchmark": "node benchmark/benchmarks.js"
   },
   "dependencies": {
     "string-hash": "1.1.0"
