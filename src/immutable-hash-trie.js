@@ -308,10 +308,8 @@ var transient = function(node){
 
 var transientFns = {
     trie: function(trie){
-        var names = keys(trie.children)
-        var vals = util.map(names, function(key){
-            return transient(trie.children[key])
-        })
+        var unpack = function(key){ return transient(trie.children[key]) }
+        var vals = util.map(keys(trie.children), unpack)
         if ( vals.length > 0 ) return util.reduce(vals, util.extend)
         else                   return {}
     },
