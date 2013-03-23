@@ -47,9 +47,8 @@ var mask = function(hash, from){ return (hash >>> from) & 0x01f }
 
 // String, Int, Function -> Int
 // gets a chunk of a hash, given a string
-var hashMask = function(str, from, fn){ 
-    fn = fn || hash
-    return mask(fn(str), from) 
+var hashMask = function(str, from, hash){ 
+    return mask(hash(str), from) 
 }
 
 // to allow hooks for other implementations/tests to override the default
