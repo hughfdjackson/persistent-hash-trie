@@ -67,7 +67,7 @@ The hashing and equality functions used on the keys can be overidden by passing 
 var im = require('immutable-hash-trie')
 
 var opts = {
-	eq: function(a, b){ return a + b },
+	eq: function(a, b){ return a === b},
 	hash: function(key){ return parseInt(key, 10) }
 }
 
