@@ -14,7 +14,7 @@ This module forms a possible basis for effecient immutable datastructures; such 
 
 ## Docs
 
-### Creating a trie
+### Trie
 
 ```javascript
 var im = require('immutable-hash-trie')
@@ -22,9 +22,7 @@ var im = require('immutable-hash-trie')
 var trie = im.Trie()
 ```
 
-### CRUD Action
-
-#### assoc
+### assoc
 
 Returns a new Trie with the new key:value keys added.
 
@@ -33,7 +31,7 @@ var trie1 = im.Trie()
 var trie2 = im.assoc(trie1, 'key', { value: true })
 ```
 
-#### dissoc
+### dissoc
 
 Returns a new Trie without a specific key
 
@@ -42,7 +40,7 @@ var trie1 = im.assoc(im.Trie(), 'key', 'val')
 var trie2 = im.dissoc(trie2, 'key')
 ```
 
-#### get
+### get
 
 Retrieves a value from a Trie.
 
@@ -51,7 +49,7 @@ var trie = im.assoc(im.Trie(), 'key', 'val')
 im.get(trie, 'key') //= 'val'
 ```
 
-#### has
+### has
 
 Returns `true` or `false`, depending on whether the value is in the Trie.
 
@@ -61,11 +59,9 @@ im.has(trie, 'key') 		//= true
 im.has(trie, 'not-in-here') //= false
 ```
 
-### Extending functionality
+### Extending assoc/dissoc/get/has
 
-Using its default configuration, each of the CRUD functions work on the basis of a provided hash and equality function that only works with string keys.  Making a javascript version of Clojure's PersistentVector or an immutable version of ECMAScript 6's Map (which allows arbitrary javascript values as keys) would require different hash and equality functions for the keys.
-
-In order to override the default ones; pass in an extra options object with each CRUD method
+The hashing and equality functions used on the keys can be overidden by passing an opts object to `assoc`, `dissoc`, `get` and `has`.
 
 ```javascript
 var im = require('immutable-hash-trie')
