@@ -97,11 +97,11 @@ var has = function(trie, key, opts, depth){
 
 var hasFns = {
     trie: function(node, key, opts, depth){
-        var child = node.children[hashMask(key, depth, opts.hash)]
+        var path = hashMask(key, depth, opts.hash)
+        var child = node.children[path]
 
         if ( child === undefined )    return false
-        if ( child.type === 'value' ) return has(child, key, opts, depth)
-        if ( child.type === 'trie' )  return has(child, key, opts, depth + 1)
+        else                          return has(child, key, opts, depth + 1)
     },
     value: function(node, key, opts){
         return opts.eq(node.key, key)
@@ -134,7 +134,8 @@ var getFns = {
         if ( opts.eq(node.key, key) ) return node.value
     },
     hashmap: function(node, key, opts, depth){
-        return node.values[key]
+        var value = node.values[key]
+        return  value ? value.value : undefined
     }
 }
 
@@ -181,10 +182,10 @@ var assocFns = {
         var child = node.children[path]
 
         if ( child === undefined  ) return Trie(copyAdd(node.children, path, Value(key, val)))
-        else                        return Trie(copyAdd(node.children, path, assoc(child, key, val, depth + 1)))
+        else                        return Trie(copyAdd(node.children, path, assoc(child, key, val, opts, depth + 1)))
     },
     value: function(node, key, val, opts, depth){
-        if ( opts.eq(value.key, key) ) return Value(key, val)
+        if ( opts.eq(node.key, key) ) return Value(key, val)
 
         var origPath = hashMask(node.key, depth, opts.hash)
         var path = hashMask(key, depth, opts.hash)
@@ -192,25 +193,25 @@ var assocFns = {
         // resolve shallow conflict
         if ( origPath !== path ) {
             var cs = {}
-            cs[origPath] = Value(value.key, value.value)
+            cs[origPath] = Value(node.key, node.value)
             cs[path]     = Value(key, val)
             return Trie(cs)
         }
 
         // resolve deep conflict
         if ( depth < 6 ) {
-            var val1 = Value(value.key, value.value)
+            var val1 = Value(node.key, node.value)
             var val2 = Value(key, val)
 
             var cs = {}
             cs[path] = val2
-            return assoc(Trie(cs), value.key, value.value, opts, depth + 1)
+            return assoc(Trie(cs), node.key, node.value, opts, depth + 1)
         }
 
         // resolve empty path - store them in a hashmap
         var cs = {}
         cs[key] = Value(key, val)
-        cs[value.key] = value
+        cs[node.key] = node
 
         return Hashmap(cs)
     },
@@ -233,7 +234,7 @@ var copyDissoc = function(obj, key){
 // Object -> [String]
 
 // get the keys of an object
-var keys = keys || function(o){
+var keys = Object.keys || function(o){
     var a = []
     for ( var key in o ) a.push(key)
     return a
@@ -267,20 +268,24 @@ var dissocFns = {
         var trie
 
         // handle the 'missing key' case, returning the Trie
-        if      ( child === undefined ) trie = node
+        if ( child === undefined ) trie = node
 
         // handle the 'present key' cases.  If it's a Value, remove it.  If it's a sub-Trie or Hashmap
         // recurse to prevent other values from being lost
-        if ( child.type === 'value' && opts.eq(child.key, key) ) trie = Trie(copyDissoc(node.children, path))
-            else                                                 trie = Trie(copyAdd(node.children, path, dissoc(child, key, path)))
+        else if ( child.type === 'value' && opts.eq(child.key, key) ) 
+            trie = Trie(copyDissoc(node.children, path))
+        else
+           trie = Trie(copyDissoc(node.children, path, dissoc(child, key, opts, depth + 1)))
 
         // if there's only a single value in a Trie node left, then it can be replaced by its value,
         // allowing us to make the Trie more shallow, and therefore more effecient.
         var names = keys(trie.children)
-        var child = trie.children[keys[0]]
+        var child = trie.children[names[0]]
 
-        if ( names.length === 1 && child.type === 'value' ) return Value(child.key, child.value)
-        else                                                 return trie
+        if ( names.length === 1 && child && child.type === 'value' ) 
+            return Value(child.key, child.value)
+        else                                                
+            return trie
     },
     value: function(){},
     hashmap: function(map, key, opts, depth){

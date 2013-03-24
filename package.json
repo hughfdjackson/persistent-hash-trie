@@ -16,7 +16,8 @@
     "mocha": "1.8.1",
     "lodash": "1.0.1",
     "benchmark": "1.0.0",
-    "microtime": "0.3.3"
+    "microtime": "0.3.3",
+    "better-stack-traces": "0.0.4"
   },
   "repository": {
     "type": "git",
