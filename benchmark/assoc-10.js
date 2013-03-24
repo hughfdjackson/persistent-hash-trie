@@ -1,19 +1,22 @@
 'use strict'
 
 var _ = require('lodash')
-
 var suite = new require('benchmark').Suite('assoc property with Trie of 10')
 
 var gen = require('./gen-data')
 var data = gen(10, Math.random())
 
-var current = require('..')
-var currentT = _.reduce(data, function(trie, val, key){
-	return current.assoc(trie, key, val)
-}, current.Trie())
+var test = function(name, im){ 
+	var trie = _.reduce(data, function(trie, val, key){
+		return im.assoc(trie, key, val)
+	}, im.Trie())
 
-suite.add('current', function(){
-	current.assoc(currentT, 'key', 'val')
-})
+	suite.add(name, function(){
+		im.assoc(trie, 'key', 'val')
+	})
+}
+
+test('current', require('..'))
+test('v0.2.1', require('./previous-versions/0.2.1/'))
 
 module.exports = suite
