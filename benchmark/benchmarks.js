@@ -3,18 +3,33 @@
 var run = require('./run-suite')
 var _ = require('lodash')
 
-var suites = [
-	require('./assoc-1'),
-	require('./dissoc-1'),
-	require('./get-1'),
-	require('./has-1'),
-	require('./transient-1'),
+var assoc = require('./assoc')
+var dissoc = require('./dissoc')
+var has = require('./has')
+var get = require('./get')
+var transient = require('./transient')
 
-	require('./assoc-10'),
-	require('./dissoc-10'),
-	require('./get-10'),
-	require('./has-10'),
-	require('./transient-10'),
+
+var suites = [
+	assoc(1),
+	assoc(10),
+	assoc(100),
+
+	dissoc(1),
+	dissoc(10),
+	dissoc(100),
+
+	has(1),
+	has(10),
+	has(100),
+
+	get(1),
+	get(10),
+	get(100),
+
+	transient(1),
+	transient(10),
+	transient(100)
 ]
 
 _.each(suites, run)
