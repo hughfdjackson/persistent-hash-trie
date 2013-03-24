@@ -334,12 +334,12 @@ var transientFns = {
 }
 
 module.exports = {
-    Trie    : Trie,
-    Value   : Value,
-    Hashmap : Hashmap,
-    has     : has,
-    get     : get,
-    assoc   : assoc,
-    dissoc  : dissoc,
+    Trie      : Trie,
+    Value     : Value,
+    Hashmap   : Hashmap,
+    has       : has,
+    get       : get,
+    assoc     : assoc,
+    dissoc    : dissoc,
     transient : transient
 }
