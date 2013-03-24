@@ -48,7 +48,7 @@ describe('using random data', function(){
     
     var seed = Math.random()
     var data = gen(10000, seed)
-    console.log('TESTING SEED ', seed)
+    console && typeof console.log == 'function' && console.log('TESTING SEED ', seed)
 
     describe('assoc/dissoc/has/get on trie w/ 10000 items', function(){
 
@@ -99,7 +99,7 @@ describe('using random data', function(){
         })
     })
 
-describe('assoc/dissoc/has/get on trie w/ 10000 items from depth 4', function(){
+    describe('assoc/dissoc/has/get on trie w/ 10000 items from depth 4', function(){
 
         // create a trie of 10000 items
         var trie = im.Trie()
