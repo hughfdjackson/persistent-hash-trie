@@ -108,8 +108,7 @@ describe('using random data', function(){
         })
 
         describe('transient', function(){
-            it('should', function(){
-                console.log(im.transient(trie))
+            it('should return the same object that\'s put in to the trie', function(){
                 a.equal(Object.keys(im.transient(trie)).length, Object.keys(data).length)
                 a.deepEqual(im.transient(trie), data)
             })
