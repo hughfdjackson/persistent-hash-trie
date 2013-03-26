@@ -111,46 +111,45 @@ describe('using random data', function(){
     describe('assoc/dissoc/has/get on trie w/ 10000 items from depth 4', function(){
 
         // create a trie of 10000 items
-        var trie = im.Trie()
-        trie = _.reduce(data, function(trie, val, key){ return im.assoc(trie, key, val, null, 4) }, trie)
+        var trie =  _.reduce(data, function(trie, val, key){
+            return im.assoc(trie, key, val, null, 4)
+        }, im.Trie())
 
-        trie = im.dissoc(trie, 'other-key', null, 4)
-        trie = im.dissoc(trie, 'key', null, 4)
-
-        it('should be able to assoc/get', function(){
-            var t = im.assoc(trie, 'key', 'value', null, 4)
-
-            a.equal(im.get(t, 'key', null, 4), 'value')
-            a.equal(im.get(t, 'other-key', null, 4), undefined)
+        it('should return not undefined for gets from first 10 keys', function(){
+            _.each(first10, function(prop){
+                a.notEqual(im.get(trie, prop, null, 4), undefined)
+            })
         })
 
-        it('should be able to assoc/has', function(){
-            var t = im.assoc(trie, 'key', 'value', null, 4)
+        it('should return true for has from first 10 keys', function(){
 
-            a.equal(im.has(t, 'key', null, 4), true)
-            a.equal(im.has(t, 'other-key', null, 4), false)
+            _.each(first10, function(prop){
+                a.equal(im.has(trie, prop, null, 4), true)
+            })
         })
 
-        it('should be able to assoc/dissoc', function(){
-            var t1 = im.assoc(trie, 'key', 'value', null, 4)
-            var t2 = im.dissoc(t1, 'key', null, 4)
+        it('should allow us to assoc over first 10 keys', function(){
 
-            a.equal(im.get(t1, 'key', null, 4), 'value')
-            a.equal(im.has(t1, 'key', null, 4), true)
+            var testVal = {}
 
-            a.equal(im.get(t2, 'key', null, 4), undefined)
-            a.equal(im.has(t2, 'key', null, 4), false)
+            var t = _.reduce(first10, function(trie, key){
+                return im.assoc(trie, key, testVal, null, 4)
+            }, trie)
+
+            _.each(first10, function(prop){
+                a.equal(im.get(t, prop, null, 4), testVal)
+            })
         })
 
-        it('should be able to assoc 2 values', function(){
-            var t1 = im.assoc(trie, 'key', 'value', null, 4)
-            var t2 = im.assoc(t1, 'other-key', 'other-value', null, 4)
+        it('should allow us to dissoc first 10 keys', function(){
 
-            a.equal(im.has(t1, 'key', null, 4), true)
-            a.equal(im.has(t1, 'other-key', null, 4), false)
+            var t = _.reduce(first10, function(trie, key){
+                return im.dissoc(trie, key, null, 4)
+            }, trie)
 
-            a.equal(im.has(t2, 'key', null, 4), true)
-            a.equal(im.has(t2, 'other-key', null, 4), true)
+            _.each(first10, function(prop){
+                a.ok(!im.has(t, prop, null, 4))
+            })
         })
     })
 })
