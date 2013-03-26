@@ -6,9 +6,9 @@ var a = require('assert')
 var im = require('..')
 var _ = require('lodash')
 var gen = require('../benchmark/gen-data')
-var log = function(msg){ 
+var log = function(msg){
     console && typeof console.log == 'function' && console.log(msg)
-}   
+}
 
 describe('assoc/dissoc/has/get', function(){
     it('should be able to assoc/get', function(){
@@ -48,14 +48,14 @@ describe('assoc/dissoc/has/get', function(){
 })
 
 describe('using random data', function(){
-    
-    var seed = 0.02801138279028237 // Math.random()
+
+    var seed = Math.random()
     var data = gen(10000, seed)
 
     // get the first 10 keys of the randomly genned data
     var first10 = (function(){
         var a = []
-        for ( var p in data ) { 
+        for ( var p in data ) {
             a.push(p)
             if ( a.length === 10 ) return a
         }
