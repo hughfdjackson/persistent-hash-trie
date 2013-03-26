@@ -19,7 +19,7 @@ var map = function(arr, fn){
 
 var reduce = function(arr, fn){
     var seed = arr[0]
-    arr = arr.slice(-1)
+    arr = arr.slice(1)
     for ( var i = 0, l = arr.length; i < l; i += 1) seed = fn(seed, arr[i])
     return seed
 }

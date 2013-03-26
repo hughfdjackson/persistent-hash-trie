@@ -106,6 +106,14 @@ describe('using random data', function(){
                 a.ok(!im.has(t, prop))
             })
         })
+
+        describe('transient', function(){
+            it('should', function(){
+                console.log(im.transient(trie))
+                a.equal(Object.keys(im.transient(trie)).length, Object.keys(data).length)
+                a.deepEqual(im.transient(trie), data)
+            })
+        })
     })
 
     describe('assoc/dissoc/has/get on trie w/ 10000 items from depth 4', function(){

@@ -324,10 +324,9 @@ var transientFns = {
         o[value.key] = value.value
         return o
     },
-    hashmap: function(hashmap){
-        var names = keys(hashmap.values)
-        var vals = names.map(function(key){
-            return transient(hashmap.values[key])
+    hashmap: function(node){
+        var vals = util.map(keys(node.values), function(key){
+            return transient(node.values[key])
         })
         if ( vals.length > 0 ) return util.reduce(vals, util.extend)
         else                   return {}
