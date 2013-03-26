@@ -79,7 +79,7 @@ var Hashmap = function(values){
 }
 
 
-//# CRUD functions - has/get/assoc/dissoc
+//# Basic manipulation functions - has/get/assoc/dissoc
 
 // Node, String, (Int), (Object)-> Bool
 
@@ -97,9 +97,7 @@ var has = function(trie, key, opts, depth){
 
 var hasFns = {
     trie: function(node, key, opts, depth){
-        var path = hashMask(key, depth, opts.hash)
-        var child = node.children[path]
-
+        var child = node.children[hashMask(key, depth, opts.hash)]
         if ( child === undefined )    return false
         else                          return has(child, key, opts, depth + 1)
     },
@@ -127,7 +125,6 @@ var getFns = {
     trie: function(node, key, opts, depth){
         var child = node.children[hashMask(key, depth, opts.hash)]
         if ( child === undefined )    return undefined
-        if ( child.type === 'value' ) return get(child, key, opts, depth)
         else                          return get(child, key, opts, depth + 1)
     },
     value: function(node, key, opts, depth){
@@ -136,6 +133,7 @@ var getFns = {
     hashmap: function(node, key, opts, depth){
         var value = node.values[key]
         return  value ? value.value : undefined
+
     }
 }
 
@@ -185,35 +183,37 @@ var assocFns = {
         else                        return Trie(copyAdd(node.children, path, assoc(child, key, val, opts, depth + 1)))
     },
     value: function(node, key, val, opts, depth){
-        if ( opts.eq(node.key, key) ) return Value(key, val)
-
         var origPath = hashMask(node.key, depth, opts.hash)
-        var path = hashMask(key, depth, opts.hash)
+        var path     = hashMask(key, depth, opts.hash)
 
-        // resolve shallow conflict
-        if ( origPath !== path ) {
-            var cs = {}
-            cs[origPath] = Value(node.key, node.value)
-            cs[path]     = Value(key, val)
-            return Trie(cs)
+        var makeHashmap = function(){ 
+            var children = {}
+            children[key] = Value(key, val)
+            return Hashmap(children)
         }
 
-        // resolve deep conflict
-        if ( depth < 6 ) {
-            var val1 = Value(node.key, node.value)
-            var val2 = Value(key, val)
+        var resolveShallowConflict = function(){
+            var children = {}
+            children[origPath] = node
+            children[path]     = Value(key, val)
 
-            var cs = {}
-            cs[path] = val2
-            return assoc(Trie(cs), node.key, node.value, opts, depth + 1)
+            return Trie(children)
         }
 
-        // resolve empty path - store them in a hashmap
-        var cs = {}
-        cs[key] = Value(key, val)
-        cs[node.key] = node
+        var resolveDeepConflict = function(){
+            var children = {}
+            children[path] = assoc(node, key, val, opts, depth + 1)
+            return Trie(children)
+        }
 
-        return Hashmap(cs)
+        var makeTrie = function(){
+            if ( origPath !== path ) return resolveShallowConflict()
+            else                     return resolveDeepConflict()
+        }
+
+        if ( opts.eq(node.key, key) ) return Value(key, val)
+        else if ( depth === 6 )       return makeHashmap()
+        else                          return makeTrie()
     },
     hashmap: function(hashmap, key, val, opts, depth){
         var v = copyAdd(hashmap.values, key, Value(key, val))

@@ -6,6 +6,9 @@ var a = require('assert')
 var im = require('..')
 var _ = require('lodash')
 var gen = require('../benchmark/gen-data')
+var log = function(msg){ 
+    console && typeof console.log == 'function' && console.log(msg)
+}   
 
 describe('assoc/dissoc/has/get', function(){
     it('should be able to assoc/get', function(){
@@ -46,56 +49,62 @@ describe('assoc/dissoc/has/get', function(){
 
 describe('using random data', function(){
     
-    var seed = Math.random()
+    var seed = 0.02801138279028237 // Math.random()
     var data = gen(10000, seed)
-    console && typeof console.log == 'function' && console.log('TESTING SEED ' + seed)
+
+    // get the first 10 keys of the randomly genned data
+    var first10 = (function(){
+        var a = []
+        for ( var p in data ) { 
+            a.push(p)
+            if ( a.length === 10 ) return a
+        }
+    })()
+
+    log('TESTING SEED: ' + seed)
 
     describe('assoc/dissoc/has/get on trie w/ 10000 items', function(){
 
         // create a trie of 10000 items
-        var trie = im.Trie()
-        trie = _.reduce(data, function(trie, val, key){ return im.assoc(trie, key, val) }, trie)
+        var trie =  _.reduce(data, function(trie, val, key){
+            return im.assoc(trie, key, val)
+        }, im.Trie())
 
-        // ensure that the keys we're testing against weren't randomly genned,
-        // really would rather not have to mess with intermittently failing tests
-        // when there are no bugs.
-        trie = im.dissoc(trie, 'other-key')
-        trie = im.dissoc(trie, 'key')
-
-        it('should be able to assoc/get', function(){
-            var t = im.assoc(trie, 'key', 'value')
-
-            a.equal(im.get(t, 'key'), 'value')
-            a.equal(im.get(t, 'other-key'), undefined)
+        it('should return not undefined for gets from first 10 keys', function(){
+            _.each(first10, function(prop){
+                a.notEqual(im.get(trie, prop), undefined)
+            })
         })
 
-        it('should be able to assoc/has', function(){
-            var t = im.assoc(trie, 'key', 'value')
+        it('should return true for has from first 10 keys', function(){
 
-            a.equal(im.has(t, 'key'), true)
-            a.equal(im.has(t, 'other-key'), false)
+            _.each(first10, function(prop){
+                a.equal(im.has(trie, prop), true)
+            })
         })
 
-        it('should be able to assoc/dissoc', function(){
-            var t1 = im.assoc(trie, 'key', 'value')
-            var t2 = im.dissoc(t1, 'key')
+        it('should allow us to assoc over first 10 keys', function(){
 
-            a.equal(im.get(t1, 'key'), 'value')
-            a.equal(im.has(t1, 'key'), true)
+            var testVal = {}
 
-            a.equal(im.get(t2, 'key'), undefined)
-            a.equal(im.has(t2, 'key'), false)
+            var t = _.reduce(first10, function(trie, key){
+                return im.assoc(trie, key, testVal)
+            }, trie)
+
+            _.each(first10, function(prop){
+                a.equal(im.get(t, prop), testVal)
+            })
         })
 
-        it('should be able to assoc 2 values', function(){
-            var t1 = im.assoc(trie, 'key', 'value')
-            var t2 = im.assoc(t1, 'other-key', 'other-value')
+        it('should allow us to dissoc first 10 keys', function(){
 
-            a.equal(im.has(t1, 'key'), true)
-            a.equal(im.has(t1, 'other-key'), false)
+            var t = _.reduce(first10, function(trie, key){
+                return im.dissoc(trie, key)
+            }, trie)
 
-            a.equal(im.has(t2, 'key'), true)
-            a.equal(im.has(t2, 'other-key'), true)
+            _.each(first10, function(prop){
+                a.ok(!im.has(t, prop))
+            })
         })
     })
 
