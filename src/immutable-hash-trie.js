@@ -44,15 +44,15 @@ var mask = function(hash, from){ return (hash >>> from) & 0x01f }
 // String, Int, Function -> Int
 // gets a chunk of a hash, given a string and a hashing function
 // the hashing function should return a 32 bit hash.
-var hashMask = function(str, from, hash){ 
-    return mask(hash(str), from) 
+var hashMask = function(str, from, hash){
+    return mask(hash(str), from)
 }
 
 // to allow hooks for other implementations/tests to override the default
-// hash and equality functions (which are the necessary ones for creating 
-// hash-table-like behaviour, as the hash-trie has), they can be passed in 
+// hash and equality functions (which are the necessary ones for creating
+// hash-table-like behaviour, as the hash-trie has), they can be passed in
 // as opts to the CRUD functions.  The default ones covers the 80% use-case
-var defaultOpts = { 
+var defaultOpts = {
     eq  : function(a, b){ return a === b },
     hash: require('string-hash')
 }
@@ -186,9 +186,10 @@ var assocFns = {
         var origPath = hashMask(node.key, depth, opts.hash)
         var path     = hashMask(key, depth, opts.hash)
 
-        var makeHashmap = function(){ 
+        var makeHashmap = function(){
             var children = {}
             children[key] = Value(key, val)
+            children[node.key] = node
             return Hashmap(children)
         }
 
@@ -212,11 +213,11 @@ var assocFns = {
         }
 
         if ( opts.eq(node.key, key) ) return Value(key, val)
-        else if ( depth === 6 )       return makeHashmap()
+        else if ( depth > 6 )         return makeHashmap()
         else                          return makeTrie()
     },
-    hashmap: function(hashmap, key, val, opts, depth){
-        var v = copyAdd(hashmap.values, key, Value(key, val))
+    hashmap: function(node, key, val, opts, depth){
+        var v = copyAdd(node.values, key, Value(key, val))
         return Hashmap(v)
     }
 }
@@ -272,7 +273,7 @@ var dissocFns = {
 
         // handle the 'present key' cases.  If it's a Value, remove it.  If it's a sub-Trie or Hashmap
         // recurse to prevent other values from being lost
-        else if ( child.type === 'value' && opts.eq(child.key, key) ) 
+        else if ( child.type === 'value' && opts.eq(child.key, key) )
             trie = Trie(copyDissoc(node.children, path))
         else
            trie = Trie(copyDissoc(node.children, path, dissoc(child, key, opts, depth + 1)))
@@ -282,9 +283,9 @@ var dissocFns = {
         var names = keys(trie.children)
         var child = trie.children[names[0]]
 
-        if ( names.length === 1 && child && child.type === 'value' ) 
+        if ( names.length === 1 && child && child.type === 'value' )
             return Value(child.key, child.value)
-        else                                                
+        else
             return trie
     },
     value: function(){},
