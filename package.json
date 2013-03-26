@@ -2,7 +2,7 @@
 {
   "name": "immutable-hash-trie",
   "description": "Pure string:val storage, using structural sharing",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "main": "src/immutable-hash-trie.js",
   "scripts": {
     "test": "mocha",
