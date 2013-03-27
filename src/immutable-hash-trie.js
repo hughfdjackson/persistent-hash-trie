@@ -305,8 +305,11 @@ var dissocFns = {
 // transient returns a mutable version of a Trie.
 
 // It achieves this by recursing down the Trie, finding all the Value nodes
-// (whether stored in a Trie directly, or in a Hashmap node, and returning
-// an objects that eventually get merged together.
+// (whether stored in a Trie directly, or in a Hashmap node), and adding
+// the values to a return value.
+
+//  (yay abusing mutability in small pieces, but keeping the function
+// pure from an API perspective)
 
 var transient = function(node, curr){
     curr = curr || {}
