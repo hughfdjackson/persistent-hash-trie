@@ -1,9 +1,9 @@
 
 {
-  "name": "immutable-hash-trie",
+  "name": "persistent-hash-trie",
   "description": "Pure string:val storage, using structural sharing",
   "version": "0.2.3",
-  "main": "src/immutable-hash-trie.js",
+  "main": "src/persistent-hash-trie.js",
   "scripts": {
     "test": "mocha",
     "prepublish": "npm test",
@@ -21,7 +21,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/hughfdjackson/immutable-hash-trie.git"
+    "url": "https://github.com/hughfdjackson/persistent-hash-trie.git"
   },
   "testling": {
     "files": "test/*-test.js",
@@ -42,7 +42,7 @@
     ],
     "harness": "mocha"
   },
-  "keywords": ["immutable", "hash", "trie", "pure", "functional", "datastructure", "bagwell", "clojure"],
+  "keywords": ["persistent", "hash", "trie", "pure", "functional", "datastructure", "bagwell", "clojure", "immutability"],
   "author": "hughfdjackson",
   "license": "BSD"
 }

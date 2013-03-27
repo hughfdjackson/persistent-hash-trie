@@ -3,7 +3,7 @@
 require('better-stack-traces')
 
 var a = require('assert')
-var im = require('..')
+var p = require('..')
 var _ = require('lodash')
 var gen = require('../benchmark/gen-data')
 var log = function(msg){
@@ -12,38 +12,38 @@ var log = function(msg){
 
 describe('assoc/dissoc/has/get', function(){
     it('should be able to assoc/get', function(){
-        var t = im.assoc(im.Trie(), 'key', 'value')
+        var t = p.assoc(p.Trie(), 'key', 'value')
 
-        a.equal(im.get(t, 'key'), 'value')
-        a.equal(im.get(t, 'age'), undefined)
+        a.equal(p.get(t, 'key'), 'value')
+        a.equal(p.get(t, 'age'), undefined)
     })
 
     it('should be able to assoc/has', function(){
-        var t = im.assoc(im.Trie(), 'key', 'value')
+        var t = p.assoc(p.Trie(), 'key', 'value')
 
-        a.equal(im.has(t, 'key'), true)
-        a.equal(im.has(t, 'age'), false)
+        a.equal(p.has(t, 'key'), true)
+        a.equal(p.has(t, 'age'), false)
     })
 
     it('should be able to assoc/dissoc', function(){
-        var t1 = im.assoc(im.Trie(), 'key', 'value')
-        var t2 = im.dissoc(t1, 'key')
+        var t1 = p.assoc(p.Trie(), 'key', 'value')
+        var t2 = p.dissoc(t1, 'key')
 
-        a.equal(im.has(t1, 'key'), true)
-        a.equal(im.get(t1, 'key'), 'value')
-        a.equal(im.has(t2, 'key'), false)
+        a.equal(p.has(t1, 'key'), true)
+        a.equal(p.get(t1, 'key'), 'value')
+        a.equal(p.has(t2, 'key'), false)
     })
 
     it('should be able to assoc 2 values', function(){
-        var t1 = im.assoc(im.Trie(), 'key', 'value')
-        var t2 = im.assoc(t1, 'other-key', 'other-value')
+        var t1 = p.assoc(p.Trie(), 'key', 'value')
+        var t2 = p.assoc(t1, 'other-key', 'other-value')
 
-        a.equal(im.has(t1, 'key'), true)
-        a.equal(im.get(t1, 'key'), 'value')
-        a.equal(im.has(t1, 'other-key'), false)
+        a.equal(p.has(t1, 'key'), true)
+        a.equal(p.get(t1, 'key'), 'value')
+        a.equal(p.has(t1, 'other-key'), false)
 
-        a.equal(im.has(t2, 'key'), true)
-        a.equal(im.has(t2, 'other-key'), true)
+        a.equal(p.has(t2, 'key'), true)
+        a.equal(p.has(t2, 'other-key'), true)
     })
 })
 
@@ -67,19 +67,19 @@ describe('using random data', function(){
 
         // create a trie of 10000 items
         var trie =  _.reduce(data, function(trie, val, key){
-            return im.assoc(trie, key, val)
-        }, im.Trie())
+            return p.assoc(trie, key, val)
+        }, p.Trie())
 
         it('should return not undefined for gets from first 10 keys', function(){
             _.each(first10, function(prop){
-                a.notEqual(im.get(trie, prop), undefined)
+                a.notEqual(p.get(trie, prop), undefined)
             })
         })
 
         it('should return true for has from first 10 keys', function(){
 
             _.each(first10, function(prop){
-                a.equal(im.has(trie, prop), true)
+                a.equal(p.has(trie, prop), true)
             })
         })
 
@@ -88,29 +88,29 @@ describe('using random data', function(){
             var testVal = {}
 
             var t = _.reduce(first10, function(trie, key){
-                return im.assoc(trie, key, testVal)
+                return p.assoc(trie, key, testVal)
             }, trie)
 
             _.each(first10, function(prop){
-                a.equal(im.get(t, prop), testVal)
+                a.equal(p.get(t, prop), testVal)
             })
         })
 
         it('should allow us to dissoc first 10 keys', function(){
 
             var t = _.reduce(first10, function(trie, key){
-                return im.dissoc(trie, key)
+                return p.dissoc(trie, key)
             }, trie)
 
             _.each(first10, function(prop){
-                a.ok(!im.has(t, prop))
+                a.ok(!p.has(t, prop))
             })
         })
 
         describe('transient', function(){
             it('should return the same object that\'s put in to the trie', function(){
-                a.equal(Object.keys(im.transient(trie)).length, Object.keys(data).length)
-                a.deepEqual(im.transient(trie), data)
+                a.equal(Object.keys(p.transient(trie)).length, Object.keys(data).length)
+                a.deepEqual(p.transient(trie), data)
             })
         })
     })
@@ -119,19 +119,19 @@ describe('using random data', function(){
 
         // create a trie of 10000 items
         var trie =  _.reduce(data, function(trie, val, key){
-            return im.assoc(trie, key, val, null, 4)
-        }, im.Trie())
+            return p.assoc(trie, key, val, null, 4)
+        }, p.Trie())
 
         it('should return not undefined for gets from first 10 keys', function(){
             _.each(first10, function(prop){
-                a.notEqual(im.get(trie, prop, null, 4), undefined)
+                a.notEqual(p.get(trie, prop, null, 4), undefined)
             })
         })
 
         it('should return true for has from first 10 keys', function(){
 
             _.each(first10, function(prop){
-                a.equal(im.has(trie, prop, null, 4), true)
+                a.equal(p.has(trie, prop, null, 4), true)
             })
         })
 
@@ -140,22 +140,22 @@ describe('using random data', function(){
             var testVal = {}
 
             var t = _.reduce(first10, function(trie, key){
-                return im.assoc(trie, key, testVal, null, 4)
+                return p.assoc(trie, key, testVal, null, 4)
             }, trie)
 
             _.each(first10, function(prop){
-                a.equal(im.get(t, prop, null, 4), testVal)
+                a.equal(p.get(t, prop, null, 4), testVal)
             })
         })
 
         it('should allow us to dissoc first 10 keys', function(){
 
             var t = _.reduce(first10, function(trie, key){
-                return im.dissoc(trie, key, null, 4)
+                return p.dissoc(trie, key, null, 4)
             }, trie)
 
             _.each(first10, function(prop){
-                a.ok(!im.has(t, prop, null, 4))
+                a.ok(!p.has(t, prop, null, 4))
             })
         })
     })

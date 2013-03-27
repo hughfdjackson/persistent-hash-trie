@@ -1,25 +1,25 @@
-# immutable-hash-trie
+# persistent-hash-trie
 
 Pure string:val storage, using structural sharing.
 
-[![browser support](https://ci.testling.com/hughfdjackson/immutable-hash-trie.png)](https://ci.testling.com/hughfdjackson/immutable-hash-trie)
+[![browser support](https://ci.testling.com/hughfdjackson/persistent-hash-trie.png)](https://ci.testling.com/hughfdjackson/persistent-hash-trie)
 
 ## Why
 
-This module forms a possible basis for effecient immutable datastructures; such as those found in Clojure's PersistentHashMap and PersistentVector.
+This module forms a possible basis for effecient persistent datastructures; such as those found in Clojure's PersistentHashMap and PersistentVector.
 
 ## Install
 
-`npm install immutable-hash-trie`
+`npm install persistent-hash-trie`
 
 ## Docs
 
 ### Trie
 
 ```javascript
-var im = require('immutable-hash-trie')
+var p = require('persistent-hash-trie')
 
-var trie = im.Trie()
+var trie = p.Trie()
 ```
 
 ### assoc
@@ -27,8 +27,8 @@ var trie = im.Trie()
 Returns a new Trie with the new key:value keys added.
 
 ```javascript
-var trie1 = im.Trie()
-var trie2 = im.assoc(trie1, 'key', { value: true })
+var trie1 = p.Trie()
+var trie2 = p.assoc(trie1, 'key', { value: true })
 ```
 
 ### dissoc
@@ -36,8 +36,8 @@ var trie2 = im.assoc(trie1, 'key', { value: true })
 Returns a new Trie without a specific key
 
 ```javascript
-var trie1 = im.assoc(im.Trie(), 'key', 'val')
-var trie2 = im.dissoc(trie2, 'key')
+var trie1 = p.assoc(p.Trie(), 'key', 'val')
+var trie2 = p.dissoc(trie2, 'key')
 ```
 
 ### get
@@ -45,8 +45,8 @@ var trie2 = im.dissoc(trie2, 'key')
 Retrieves a value from a Trie.
 
 ```javascript
-var trie = im.assoc(im.Trie(), 'key', 'val')
-im.get(trie, 'key') //= 'val'
+var trie = p.assoc(p.Trie(), 'key', 'val')
+p.get(trie, 'key') //= 'val'
 ```
 
 ### has
@@ -54,9 +54,9 @@ im.get(trie, 'key') //= 'val'
 Returns `true` or `false`, depending on whether the value is in the Trie.
 
 ```javascript
-var trie = im.assoc(im.Trie(), 'key', 'val')
-im.has(trie, 'key') 		//= true
-im.has(trie, 'not-in-here') //= false
+var trie = p.assoc(p.Trie(), 'key', 'val')
+p.has(trie, 'key') 		//= true
+p.has(trie, 'not-in-here') //= false
 ```
 
 ### transient
@@ -64,8 +64,8 @@ im.has(trie, 'not-in-here') //= false
 Returns a mutable copy of a Trie, in the form of a js object.
 
 ```javascript
-var trie = im.assoc(im.Trie(), 'key', 'val')
-im.transient(trie) //= { key: 'val' }
+var trie = p.assoc(p.Trie(), 'key', 'val')
+p.transient(trie) //= { key: 'val' }
 ```
 
 ### Extending assoc/dissoc/get/has
@@ -73,17 +73,17 @@ im.transient(trie) //= { key: 'val' }
 The hashing and equality functions used on the keys can be overidden by passing an opts object to `assoc`, `dissoc`, `get` and `has`.
 
 ```javascript
-var im = require('immutable-hash-trie')
+var im = require('persistent-hash-trie')
 
 var opts = {
 	eq: function(a, b){ return a === b},
 	hash: function(key){ return parseInt(key, 10) }
 }
 
-var vector = im.assoc(im.Trie(), 3, 'my-val', opts)
-var val = im.get(vector, 3, opts)
-var vector2 = im.dissoc(vector, 3, opts)
-im.has(vector2, 3, opts) // false
+var vector = p.assoc(p.Trie(), 3, 'my-val', opts)
+var val = p.get(vector, 3, opts)
+var vector2 = p.dissoc(vector, 3, opts)
+p.has(vector2, 3, opts) // false
 ```
 
 ## Running tests and benchmarks

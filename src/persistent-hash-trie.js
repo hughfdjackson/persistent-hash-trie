@@ -2,7 +2,7 @@
 
 var util = require('./util')
 
-//# Immutable Hash Trie
+//# persistent Hash Trie
 
 // A Trie is a specialised version of a Tree, in which nodes can be found by navigating a 'path'.
 // For instance, a dictionary Trie may start with a root node, have A-Z as the child nodes.
@@ -25,14 +25,14 @@ var util = require('./util')
 // If we used the first 2 letters of a word, for instance, we'd end up with lots of
 // nodes in the 'un' and 'th' paths, and not many in the 'tx' path.
 
-// An Immutable Hash Trie is a Hash Trie in which any commonly updating actions - removing,
+// An persistent Hash Trie is a Hash Trie in which any commonly updating actions - removing,
 // setting or adding values - produce an entirely new Hash Trie, and *don't* affect the
 // original in any way.  This means that the Hash Tries can be shared safely; without fear
 // that updating them will result in a value changing in multiple places in a program.
 
 // To make this distinction clearer, the verbs 'set' and 'remove/delete' have been replaced
-// with assoc (associate a new value with an Immutable Hash Trie), and dissoc (dissociate
-// an existing value with an Immutable Hash Trie).
+// with assoc (associate a new value with an persistent Hash Trie), and dissoc (dissociate
+// an existing value with an persistent Hash Trie).
 
 //# Hashing functions
 
@@ -160,7 +160,7 @@ var copyAdd = function(obj, key, val){
 // This is called path-copying, since the path from the root node to the new
 // node is copied form one datastructure to the other.  Since the vast majority
 // of data will lie in nodes beneathe these in sizable datastructures, this sharing
-// of data allows for immutable values to be updated relatively effeciently at large
+// of data allows for persistent values to be updated relatively effeciently at large
 // size.
 
 // The algorithm is also aware of 'specificity'; i.e. that a value need only be stored

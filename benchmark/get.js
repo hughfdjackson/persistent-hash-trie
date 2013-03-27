@@ -7,14 +7,14 @@ var makeSuite = function(quantity){
 	var suite = new require('benchmark').Suite('get property with Trie of ' + quantity)
 	var data = gen(quantity, Math.random())
 
-	var test = function(name, im){
+	var test = function(name, p){
 		var trie = _.reduce(data, function(trie, val, key){
-			return im.assoc(trie, key, val)
-		}, im.Trie())
-		trie = im.assoc(trie, 'key', 'val')
+			return p.assoc(trie, key, val)
+		}, p.Trie())
+		trie = p.assoc(trie, 'key', 'val')
 
 		suite.add(name, function(){
-			im.get(trie, 'key')
+			p.get(trie, 'key')
 		})
 	}
 

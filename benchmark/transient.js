@@ -7,13 +7,13 @@ var makeSuite = function(quantity){
 	var suite = new require('benchmark').Suite('transient property with Trie of ' + quantity)
 	var data = gen(quantity, Math.random())
 
-	var test = function(name, im){
+	var test = function(name, p){
 		var trie = _.reduce(data, function(trie, val, key){
-			return im.assoc(trie, key, val)
-		}, im.Trie())
+			return p.assoc(trie, key, val)
+		}, p.Trie())
 
 		suite.add(name, function(){
-			im.transient(trie)
+			p.transient(trie)
 		})
 	}
 
