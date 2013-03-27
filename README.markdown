@@ -59,6 +59,15 @@ im.has(trie, 'key') 		//= true
 im.has(trie, 'not-in-here') //= false
 ```
 
+### transient
+
+Returns a mutable copy of a Trie, in the form of a js object.
+
+```javascript
+var trie = im.assoc(im.Trie(), 'key', 'val')
+im.transient(trie) //= { key: 'val' }
+```
+
 ### Extending assoc/dissoc/get/has
 
 The hashing and equality functions used on the keys can be overidden by passing an opts object to `assoc`, `dissoc`, `get` and `has`.
