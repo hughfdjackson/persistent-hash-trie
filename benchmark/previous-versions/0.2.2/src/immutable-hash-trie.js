@@ -308,21 +308,29 @@ var dissocFns = {
 // (whether stored in a Trie directly, or in a Hashmap node, and returning
 // an objects that eventually get merged together.
 
-var transient = function(node, curr){
-    curr = curr || {}
-    transientFns[node.type](node, curr)
-    return curr
+var transient = function(node){
+    return transientFns[node.type](node)
 }
 
 var transientFns = {
-    trie: function(node, curr){
-        for ( var key in node.children ) transient(node.children[key], curr)
+    trie: function(trie){
+        var unpack = function(key){ return transient(trie.children[key]) }
+        var vals = util.map(keys(trie.children), unpack)
+        if ( vals.length > 0 ) return util.reduce(vals, util.extend)
+        else                   return {}
     },
-    value: function(node, curr){
-        curr[node.key] = node.value
+    value: function(value){
+        var o = {}
+        o[value.key] = value.value
+        return o
     },
-    hashmap: function(node, curr){
-        for ( var key in node.values ) transient(node.values[key], curr)
+    hashmap: function(hashmap){
+        var names = keys(hashmap.values)
+        var vals = names.map(function(key){
+            return transient(hashmap.values[key])
+        })
+        if ( vals.length > 0 ) return util.reduce(vals, util.extend)
+        else                   return {}
     }
 }
 
