@@ -82,7 +82,7 @@ p.keys(trie) //= ['key']
 The hashing and equality functions used on the keys can be overidden by passing an opts object to `assoc`, `dissoc`, `get` and `has`.
 
 ```javascript
-var im = require('persistent-hash-trie')
+var p = require('persistent-hash-trie')
 
 var opts = {
 	eq: function(a, b){ return a === b},
