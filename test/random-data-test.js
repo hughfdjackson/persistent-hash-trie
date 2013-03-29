@@ -47,19 +47,12 @@ describe('assoc/dissoc/has/get', function(){
     })
 })
 
-describe('using random data', function(){
+var testWithData = function(data){
 
-    var seed = Math.random()
-    var data = gen(10000, seed)
-
-    // get the first 10 keys of the randomly genned data
     var keys = _.keys(data)
 
-    log('TESTING SEED: ' + seed)
+    describe('assoc/dissoc/has/get on trie w/ ' + keys.length + ' items', function(){
 
-    describe('assoc/dissoc/has/get on trie w/ 10000 items', function(){
-
-        // create a trie of 10000 items
         var trie =  _.reduce(data, function(trie, val, key){
             return p.assoc(trie, key, val)
         }, p.Trie())
@@ -108,50 +101,18 @@ describe('using random data', function(){
             })
         })
     })
-
-    describe('assoc/dissoc/has/get on trie w/ 10000 items from depth 4', function(){
-
-        // create a trie of 10000 items
-        var trie =  _.reduce(data, function(trie, val, key){
-            return p.assoc(trie, key, val, null, 4)
-        }, p.Trie())
+}
 
 
-        it('should return not undefined for gets from first 10 keys', function(){
-            _.each(keys, function(prop){
-                a.notEqual(p.get(trie, prop, null, 4), undefined)
-            })
-        })
+describe('using random data', function(){
+    var seed = Math.random()
+    var data = gen(100, seed)
+    log('TESTING SEED: ' + seed)
 
-        it('should return true for has from first 10 keys', function(){
-
-            _.each(keys, function(prop){
-                a.equal(p.has(trie, prop, null, 4), true)
-            })
-        })
-
-        it('should allow us to assoc over first 10 keys', function(){
-
-            var testVal = {}
-
-            var t = _.reduce(keys, function(trie, key){
-                return p.assoc(trie, key, testVal, null, 4)
-            }, trie)
-
-            _.each(keys, function(prop){
-                a.equal(p.get(t, prop, null, 4), testVal)
-            })
-        })
-
-        it('should allow us to dissoc first 10 keys', function(){
-
-            var t = _.reduce(keys, function(trie, key){
-                return p.dissoc(trie, key, null, 4)
-            }, trie)
-
-            _.each(keys, function(prop){
-                a.ok(!p.has(t, prop, null, 4))
-            })
-        })
-    })
+    testWithData(gen(1, seed))
+    testWithData(gen(100, seed))
+    testWithData(gen(1000, seed))
+    testWithData(gen(10000, seed))
 })
+
+

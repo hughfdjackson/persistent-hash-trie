@@ -196,8 +196,8 @@ var assocFns = {
         else                        return Trie(copyAdd(node.children, path, assoc(child, key, val, opts, depth + 1)))
     },
     value: function(node, key, val, opts, depth){
-        var origPath = hashMask(node.key, depth, opts.hash)
-        var path     = hashMask(key, depth, opts.hash)
+        var nodePath = hashMask(node.key, depth, opts.hash)
+        var keyPath  = hashMask(key, depth, opts.hash)
 
         var makeHashmap = function(){
             var children = {}
@@ -208,21 +208,21 @@ var assocFns = {
 
         var resolveShallowConflict = function(){
             var children = {}
-            children[origPath] = node
-            children[path]     = Value(key, val)
+            children[nodePath] = node
+            children[keyPath]  = Value(key, val)
 
             return Trie(children)
         }
 
         var resolveDeepConflict = function(){
             var children = {}
-            children[path] = assoc(node, key, val, opts, depth + 1)
+            children[keyPath] = assoc(node, key, val, opts, depth + 1)
             return Trie(children)
         }
 
         var makeTrie = function(){
-            if ( origPath !== path ) return resolveShallowConflict()
-            else                     return resolveDeepConflict()
+            if ( nodePath !== keyPath ) return resolveShallowConflict()
+            else                        return resolveDeepConflict()
         }
 
         if ( opts.eq(node.key, key) ) return Value(key, val)
@@ -279,31 +279,40 @@ var dissocFns = {
     trie: function(node, key, opts, depth){
         var path = hashMask(key, depth, opts.hash)
         var child = node.children[path]
-        var trie
-
-        // handle the 'missing key' case, returning the Trie
-        if ( child === undefined ) trie = node
 
         // handle the 'present key' cases.  If it's a Value, remove it.  If it's a sub-Trie or Hashmap
         // recurse to prevent other values from being lost
-        else if ( child.type === 'value' && opts.eq(child.key, key) )
-            trie = Trie(copyDissoc(node.children, path))
-        else
-           trie = Trie(copyDissoc(node.children, path, dissoc(child, key, opts, depth + 1)))
+        var dissocKey = function(){
+            if ( child.type === 'value' && opts.eq(child.key, key) )
+                return Trie(copyDissoc(node.children, path))
+            else
+                return Trie(copyDissoc(node.children, path, dissoc(child, key, opts, depth + 1)))
+        }
 
         // if there's only a single value in a Trie node left, then it can be replaced by its value,
         // allowing us to make the Trie more shallow, and therefore more effecient.
-        var names = keys(trie.children)
-        var child = trie.children[names[0]]
+        var collapseTrie = function(trie){
+            var names = keys(trie.children)
+            var child = trie.children[names[0]]
 
-        if ( names.length === 1 && child && child.type === 'value' )
-            return Value(child.key, child.value)
-        else
-            return trie
+            // don't collapse an empty root trie
+            if ( depth === 0 )                                       return trie
+            else if ( child === undefined )                          return trie
+            else if ( names.length === 1 && child.type === 'value' ) return Value(child.key, child.value)
+            else                                                     return trie
+        }
+
+        var handleTrie = function(){
+            return collapseTrie(dissocKey(node))
+        }
+
+        // if there's no child, return the node
+        if ( child === undefined )  return node;
+        else                        return handleTrie();
     },
     value: function(){},
-    hashmap: function(map, key, opts, depth){
-        var ret = copyDissoc(map.values, hashMask(key, depth, opts.hash))
+    hashmap: function(node, key, opts, depth){
+        var ret = copyDissoc(node.values, key)
         var names = keys(ret)
         var child = ret[names[0]]
 
@@ -326,11 +335,11 @@ var dissocFns = {
 
 var mutable = function(node, curr){
     curr = curr || {}
-    transientFns[node.type](node, curr)
+    mutableFns[node.type](node, curr)
     return curr
 }
 
-var transientFns = {
+var mutableFns = {
     trie: function(node, curr){
         for ( var key in node.children ) mutable(node.children[key], curr)
     },
