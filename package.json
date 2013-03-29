@@ -9,9 +9,6 @@
     "prepublish": "npm test",
     "benchmark": "node benchmark/benchmarks.js"
   },
-  "dependencies": {
-    "string-hash": "1.1.0"
-  },
   "devDependencies": {
     "mocha": "1.8.1",
     "lodash": "1.0.1",

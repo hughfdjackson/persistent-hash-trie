@@ -7,11 +7,10 @@ var print = function(){
 	log(this.name)
 	log('//-------------------------//')
 	log('Results:')
-	
+
 	this.map(function(results){
 		log(results.name + ' : ' + results.count + ' ± ' + results.stats.rme + '%')
 	})
-	log('~~~~~~~~~~~~~~~~~~~~~~~~~~~~')
 }
 
 module.exports = print

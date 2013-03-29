@@ -48,13 +48,25 @@ var hashMask = function(str, from, hash){
     return mask(hash(str), from)
 }
 
+
+// hash function for strings, based on Java's String.hashCode:
+// http://docs.oracle.com/javase/1.4.2/docs/api/java/lang/String.html#hashCode()
+var hash = function(str){
+    var h = 0
+    var l = str.length
+    for ( var i = 0; i < l; i += 1 )
+        h += str.charCodeAt(i) * 31 * l - i
+    return h
+}
+
 // to allow hooks for other implementations/tests to override the default
 // hash and equality functions (which are the necessary ones for creating
 // hash-table-like behaviour, as the hash-trie has), they can be passed in
 // as opts to the CRUD functions.  The default ones covers the 80% use-case
 var defaultOpts = {
     eq  : function(a, b){ return a === b },
-    hash: require('string-hash')
+
+    hash: hash
 }
 
 //# Node Types
