@@ -59,13 +59,13 @@ p.has(trie, 'key') 		//= true
 p.has(trie, 'not-in-here') //= false
 ```
 
-### transient
+### mutable
 
 Returns a mutable copy of a Trie, in the form of a js object.
 
 ```javascript
 var trie = p.assoc(p.Trie(), 'key', 'val')
-p.transient(trie) //= { key: 'val' }
+p.mutable(trie) //= { key: 'val' }
 ```
 
 ### Extending assoc/dissoc/get/has

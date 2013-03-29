@@ -315,7 +315,7 @@ var dissocFns = {
 
 // Node -> Object
 
-// transient returns a mutable version of a Trie.
+// mutable returns a mutable version of a Trie.
 
 // It achieves this by recursing down the Trie, finding all the Value nodes
 // (whether stored in a Trie directly, or in a Hashmap node), and adding
@@ -324,7 +324,7 @@ var dissocFns = {
 //  (yay abusing mutability in small pieces, but keeping the function
 // pure from an API perspective)
 
-var transient = function(node, curr){
+var mutable = function(node, curr){
     curr = curr || {}
     transientFns[node.type](node, curr)
     return curr
@@ -332,23 +332,23 @@ var transient = function(node, curr){
 
 var transientFns = {
     trie: function(node, curr){
-        for ( var key in node.children ) transient(node.children[key], curr)
+        for ( var key in node.children ) mutable(node.children[key], curr)
     },
     value: function(node, curr){
         curr[node.key] = node.value
     },
     hashmap: function(node, curr){
-        for ( var key in node.values ) transient(node.values[key], curr)
+        for ( var key in node.values ) mutable(node.values[key], curr)
     }
 }
 
 module.exports = {
-    Trie      : Trie,
-    Value     : Value,
-    Hashmap   : Hashmap,
-    has       : has,
-    get       : get,
-    assoc     : assoc,
-    dissoc    : dissoc,
-    transient : transient
+    Trie    : Trie,
+    Value   : Value,
+    Hashmap : Hashmap,
+    has     : has,
+    get     : get,
+    assoc   : assoc,
+    dissoc  : dissoc,
+    mutable : mutable
 }

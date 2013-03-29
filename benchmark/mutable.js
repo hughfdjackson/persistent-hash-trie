@@ -5,7 +5,7 @@ var gen = require('./gen-data')
 var versions = require('./versions')
 
 var makeSuite = function(quantity){
-	var suite = new require('benchmark').Suite('mutable with Trie of ' + quantity)
+	var suite = new require('benchmark').Suite('transient property with Trie of ' + quantity)
 	var data = gen(quantity, Math.random())
 
 	var test = function(o){

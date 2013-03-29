@@ -64,8 +64,6 @@ describe('using random data', function(){
             return p.assoc(trie, key, val)
         }, p.Trie())
 
-        debugger
-
         it('should return not undefined for get', function(){
             _.each(keys, function(prop){
                 a.notEqual(p.get(trie, prop), undefined)
@@ -103,10 +101,10 @@ describe('using random data', function(){
             })
         })
 
-        describe('transient', function(){
+        describe('mutable', function(){
             it('should return the same object that\'s put in to the trie', function(){
-                a.equal(Object.keys(p.transient(trie)).length, Object.keys(data).length)
-                a.deepEqual(p.transient(trie), data)
+                a.equal(Object.keys(p.mutable(trie)).length, Object.keys(data).length)
+                a.deepEqual(p.mutable(trie), data)
             })
         })
     })
