@@ -7,8 +7,8 @@ var assoc = require('./assoc')
 var dissoc = require('./dissoc')
 var has = require('./has')
 var get = require('./get')
-var mutable = require('./mutable')
-var keys = require('./keys')
+var transient = require('./transient')
+
 
 var suites = [
 	assoc(1),
@@ -32,15 +32,10 @@ var suites = [
 	get(100),
 	get(1000),
 
-	mutable(1),
-	mutable(10),
-	mutable(100),
-	mutable(1000),
-
-	keys(1),
-	keys(10),
-	keys(100),
-	keys(1000)
+	transient(1),
+	transient(10),
+	transient(100),
+	transient(1000)
 ]
 
 _.each(suites, run)

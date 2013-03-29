@@ -8,7 +8,6 @@ var dissoc = require('./dissoc')
 var has = require('./has')
 var get = require('./get')
 var mutable = require('./mutable')
-var keys = require('./keys')
 
 var suites = [
 	assoc(1),
@@ -35,12 +34,7 @@ var suites = [
 	mutable(1),
 	mutable(10),
 	mutable(100),
-	mutable(1000),
-
-	keys(1),
-	keys(10),
-	keys(100),
-	keys(1000)
+	mutable(1000)
 ]
 
 _.each(suites, run)
