@@ -33,6 +33,16 @@ var pick = function(o){
     return r
 }
 
+// Object -> [String]
+
+// get the keys of an object
+var keys = Object.keys || function(o){
+    var a = []
+    for ( var key in o ) a.push(key)
+    return a
+}
+
+
 module.exports = {
     extend    : extend,
     clone     : clone,
@@ -40,5 +50,6 @@ module.exports = {
     mapObj    : mapObj,
     pick      : pick,
     map       : map,
-    reduce    : reduce
+    reduce    : reduce,
+    keys      : keys
 }

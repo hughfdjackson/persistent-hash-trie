@@ -245,14 +245,6 @@ var copyDissoc = function(obj, key){
     return obj
 }
 
-// Object -> [String]
-
-// get the keys of an object
-var keys = Object.keys || function(o){
-    var a = []
-    for ( var key in o ) a.push(key)
-    return a
-}
 
 // Node, String, (Int) -> Trie
 
@@ -292,7 +284,7 @@ var dissocFns = {
         // if there's only a single value in a Trie node left, then it can be replaced by its value,
         // allowing us to make the Trie more shallow, and therefore more effecient.
         var collapseTrie = function(trie){
-            var names = keys(trie.children)
+            var names = util.keys(trie.children)
             var child = trie.children[names[0]]
 
             // don't collapse an empty root trie
@@ -313,7 +305,7 @@ var dissocFns = {
     value: function(){},
     hashmap: function(node, key, opts, depth){
         var ret = copyDissoc(node.values, key)
-        var names = keys(ret)
+        var names = util.keys(ret)
         var child = ret[names[0]]
 
         if ( names.length === 1 ) return Value(child.key, child.value)
@@ -351,6 +343,28 @@ var mutableFns = {
     }
 }
 
+// Node -> [String]
+
+// keys returns the keys stored in the array, like Object.keys
+// implemented similarly to `mutable`
+var keys = function(node, arr){
+    arr = arr || []
+    keysFns[node.type](node, arr)
+    return arr
+}
+
+var keysFns = {
+    trie: function(node, arr){
+        for ( var key in node.children ) keys(node.children[key], arr)
+    },
+    value: function(node, arr){
+        arr.push(node.key)
+    },
+    hashmap: function(node, arr){
+        for ( var key in node.values ) keys(node.values[key], arr)
+    }
+}
+
 module.exports = {
     Trie    : Trie,
     Value   : Value,
@@ -359,5 +373,6 @@ module.exports = {
     get     : get,
     assoc   : assoc,
     dissoc  : dissoc,
-    mutable : mutable
+    mutable : mutable,
+    keys    : keys
 }

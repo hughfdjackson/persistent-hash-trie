@@ -84,7 +84,6 @@ var testWithData = function(data){
         })
 
         it('should allow us to dissoc', function(){
-
             var t = _.reduce(keys, function(trie, key){
                 return p.dissoc(trie, key)
             }, trie)
@@ -96,8 +95,13 @@ var testWithData = function(data){
 
         describe('mutable', function(){
             it('should return the same object that\'s put in to the trie', function(){
-                a.equal(Object.keys(p.mutable(trie)).length, Object.keys(data).length)
                 a.deepEqual(p.mutable(trie), data)
+            })
+        })
+
+        describe('keys', function(){
+            it('should return an array of keys stored in the trie', function(){
+                a.deepEqual(p.keys(trie).sort(), _.keys(data).sort())
             })
         })
     })

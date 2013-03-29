@@ -68,6 +68,15 @@ var trie = p.assoc(p.Trie(), 'key', 'val')
 p.mutable(trie) //= { key: 'val' }
 ```
 
+### keys
+
+Returns an array of all keys in the trie
+
+```javascript
+var trie = p.assoc(p.Trie(), 'key', 'val')
+p.keys(trie) //= ['key']
+```
+
 ### Extending assoc/dissoc/get/has
 
 The hashing and equality functions used on the keys can be overidden by passing an opts object to `assoc`, `dissoc`, `get` and `has`.
