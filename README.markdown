@@ -97,4 +97,4 @@ p.has(vector2, 3, opts) // false
 
 ## Running tests and benchmarks
 
-`npm test` and `npm run-script benchmark` are your friends.
+`npm test` and `npm run benchmark` are your friends.
