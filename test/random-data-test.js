@@ -47,111 +47,111 @@ describe('assoc/dissoc/has/get', function(){
     })
 })
 
-describe('using random data', function(){
+// describe('using random data', function(){
 
-    var seed = Math.random()
-    var data = gen(10000, seed)
+//     var seed = Math.random()
+//     var data = gen(10000, seed)
 
-    // get the first 10 keys of the randomly genned data
-    var keys = _.keys(data)
+//     // get the first 10 keys of the randomly genned data
+//     var keys = _.keys(data)
 
-    log('TESTING SEED: ' + seed)
+//     log('TESTING SEED: ' + seed)
 
-    describe('assoc/dissoc/has/get on trie w/ 10000 items', function(){
+//     describe('assoc/dissoc/has/get on trie w/ 10000 items', function(){
 
-        // create a trie of 10000 items
-        var trie =  _.reduce(data, function(trie, val, key){
-            return p.assoc(trie, key, val)
-        }, p.Trie())
+//         // create a trie of 10000 items
+//         var trie =  _.reduce(data, function(trie, val, key){
+//             return p.assoc(trie, key, val)
+//         }, p.Trie())
 
-        it('should return not undefined for get', function(){
-            _.each(keys, function(prop){
-                a.notEqual(p.get(trie, prop), undefined)
-            })
-        })
+//         it('should return not undefined for get', function(){
+//             _.each(keys, function(prop){
+//                 a.notEqual(p.get(trie, prop), undefined)
+//             })
+//         })
 
-        it('should return true for has', function(){
+//         it('should return true for has', function(){
 
-            _.each(keys, function(prop){
-                a.equal(p.has(trie, prop), true)
-            })
-        })
+//             _.each(keys, function(prop){
+//                 a.equal(p.has(trie, prop), true)
+//             })
+//         })
 
-        it('should allow us to assoc', function(){
+//         it('should allow us to assoc', function(){
 
-            var testVal = {}
+//             var testVal = {}
 
-            var t = _.reduce(keys, function(trie, key){
-                return p.assoc(trie, key, testVal)
-            }, trie)
+//             var t = _.reduce(keys, function(trie, key){
+//                 return p.assoc(trie, key, testVal)
+//             }, trie)
 
-            _.each(keys, function(prop){
-                a.equal(p.get(t, prop), testVal)
-            })
-        })
+//             _.each(keys, function(prop){
+//                 a.equal(p.get(t, prop), testVal)
+//             })
+//         })
 
-        it('should allow us to dissoc', function(){
+//         it('should allow us to dissoc', function(){
 
-            var t = _.reduce(keys, function(trie, key){
-                return p.dissoc(trie, key)
-            }, trie)
+//             var t = _.reduce(keys, function(trie, key){
+//                 return p.dissoc(trie, key)
+//             }, trie)
 
-            _.each(keys, function(prop){
-                a.ok(!p.has(t, prop))
-            })
-        })
+//             _.each(keys, function(prop){
+//                 a.ok(!p.has(t, prop))
+//             })
+//         })
 
-        describe('mutable', function(){
-            it('should return the same object that\'s put in to the trie', function(){
-                a.equal(Object.keys(p.mutable(trie)).length, Object.keys(data).length)
-                a.deepEqual(p.mutable(trie), data)
-            })
-        })
-    })
+//         describe('mutable', function(){
+//             it('should return the same object that\'s put in to the trie', function(){
+//                 a.equal(Object.keys(p.mutable(trie)).length, Object.keys(data).length)
+//                 a.deepEqual(p.mutable(trie), data)
+//             })
+//         })
+//     })
 
-    describe('assoc/dissoc/has/get on trie w/ 10000 items from depth 4', function(){
+//     describe('assoc/dissoc/has/get on trie w/ 10000 items from depth 4', function(){
 
-        // create a trie of 10000 items
-        var trie =  _.reduce(data, function(trie, val, key){
-            return p.assoc(trie, key, val, null, 4)
-        }, p.Trie())
+//         // create a trie of 10000 items
+//         var trie =  _.reduce(data, function(trie, val, key){
+//             return p.assoc(trie, key, val, null, 4)
+//         }, p.Trie())
 
 
-        it('should return not undefined for gets from first 10 keys', function(){
-            _.each(keys, function(prop){
-                a.notEqual(p.get(trie, prop, null, 4), undefined)
-            })
-        })
+//         it('should return not undefined for gets from first 10 keys', function(){
+//             _.each(keys, function(prop){
+//                 a.notEqual(p.get(trie, prop, null, 4), undefined)
+//             })
+//         })
 
-        it('should return true for has from first 10 keys', function(){
+//         it('should return true for has from first 10 keys', function(){
 
-            _.each(keys, function(prop){
-                a.equal(p.has(trie, prop, null, 4), true)
-            })
-        })
+//             _.each(keys, function(prop){
+//                 a.equal(p.has(trie, prop, null, 4), true)
+//             })
+//         })
 
-        it('should allow us to assoc over first 10 keys', function(){
+//         it('should allow us to assoc over first 10 keys', function(){
 
-            var testVal = {}
+//             var testVal = {}
 
-            var t = _.reduce(keys, function(trie, key){
-                return p.assoc(trie, key, testVal, null, 4)
-            }, trie)
+//             var t = _.reduce(keys, function(trie, key){
+//                 return p.assoc(trie, key, testVal, null, 4)
+//             }, trie)
 
-            _.each(keys, function(prop){
-                a.equal(p.get(t, prop, null, 4), testVal)
-            })
-        })
+//             _.each(keys, function(prop){
+//                 a.equal(p.get(t, prop, null, 4), testVal)
+//             })
+//         })
 
-        it('should allow us to dissoc first 10 keys', function(){
+//         it('should allow us to dissoc first 10 keys', function(){
 
-            var t = _.reduce(keys, function(trie, key){
-                return p.dissoc(trie, key, null, 4)
-            }, trie)
+//             var t = _.reduce(keys, function(trie, key){
+//                 return p.dissoc(trie, key, null, 4)
+//             }, trie)
 
-            _.each(keys, function(prop){
-                a.ok(!p.has(t, prop, null, 4))
-            })
-        })
-    })
-})
+//             _.each(keys, function(prop){
+//                 a.ok(!p.has(t, prop, null, 4))
+//             })
+//         })
+//     })
+// })
