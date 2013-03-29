@@ -2,12 +2,16 @@
 
 var _ = require('lodash')
 var gen = require('./gen-data')
+var versions = require('./versions')
 
 var makeSuite = function(quantity){
 	var suite = new require('benchmark').Suite('get property with Trie of ' + quantity)
 	var data = gen(quantity, Math.random())
 
-	var test = function(name, p){
+	var test = function(o){
+		var name = o.name
+		var p = o.module
+
 		var trie = _.reduce(data, function(trie, val, key){
 			return p.assoc(trie, key, val)
 		}, p.Trie())
@@ -18,12 +22,7 @@ var makeSuite = function(quantity){
 		})
 	}
 
-	test('current', require('..'))
-	// test('v0.2.1', require('./previous-versions/0.2.1/'))
-	// test('v0.2.2', require('./previous-versions/0.2.2/'))
-	test('v0.2.3', require('./previous-versions/0.2.3/'))
-	test('v0.2.4', require('./previous-versions/0.2.4/'))
-
+	_.each(versions, test)
 	return suite
 }
 

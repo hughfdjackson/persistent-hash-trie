@@ -53,13 +53,7 @@ describe('using random data', function(){
     var data = gen(10000, seed)
 
     // get the first 10 keys of the randomly genned data
-    var first10 = (function(){
-        var a = []
-        for ( var p in data ) {
-            a.push(p)
-            if ( a.length === 10 ) return a
-        }
-    })()
+    var keys = _.keys(data)
 
     log('TESTING SEED: ' + seed)
 
@@ -70,39 +64,41 @@ describe('using random data', function(){
             return p.assoc(trie, key, val)
         }, p.Trie())
 
-        it('should return not undefined for gets from first 10 keys', function(){
-            _.each(first10, function(prop){
+        debugger
+
+        it('should return not undefined for get', function(){
+            _.each(keys, function(prop){
                 a.notEqual(p.get(trie, prop), undefined)
             })
         })
 
-        it('should return true for has from first 10 keys', function(){
+        it('should return true for has', function(){
 
-            _.each(first10, function(prop){
+            _.each(keys, function(prop){
                 a.equal(p.has(trie, prop), true)
             })
         })
 
-        it('should allow us to assoc over first 10 keys', function(){
+        it('should allow us to assoc', function(){
 
             var testVal = {}
 
-            var t = _.reduce(first10, function(trie, key){
+            var t = _.reduce(keys, function(trie, key){
                 return p.assoc(trie, key, testVal)
             }, trie)
 
-            _.each(first10, function(prop){
+            _.each(keys, function(prop){
                 a.equal(p.get(t, prop), testVal)
             })
         })
 
-        it('should allow us to dissoc first 10 keys', function(){
+        it('should allow us to dissoc', function(){
 
-            var t = _.reduce(first10, function(trie, key){
+            var t = _.reduce(keys, function(trie, key){
                 return p.dissoc(trie, key)
             }, trie)
 
-            _.each(first10, function(prop){
+            _.each(keys, function(prop){
                 a.ok(!p.has(t, prop))
             })
         })
@@ -122,15 +118,16 @@ describe('using random data', function(){
             return p.assoc(trie, key, val, null, 4)
         }, p.Trie())
 
+
         it('should return not undefined for gets from first 10 keys', function(){
-            _.each(first10, function(prop){
+            _.each(keys, function(prop){
                 a.notEqual(p.get(trie, prop, null, 4), undefined)
             })
         })
 
         it('should return true for has from first 10 keys', function(){
 
-            _.each(first10, function(prop){
+            _.each(keys, function(prop){
                 a.equal(p.has(trie, prop, null, 4), true)
             })
         })
@@ -139,22 +136,22 @@ describe('using random data', function(){
 
             var testVal = {}
 
-            var t = _.reduce(first10, function(trie, key){
+            var t = _.reduce(keys, function(trie, key){
                 return p.assoc(trie, key, testVal, null, 4)
             }, trie)
 
-            _.each(first10, function(prop){
+            _.each(keys, function(prop){
                 a.equal(p.get(t, prop, null, 4), testVal)
             })
         })
 
         it('should allow us to dissoc first 10 keys', function(){
 
-            var t = _.reduce(first10, function(trie, key){
+            var t = _.reduce(keys, function(trie, key){
                 return p.dissoc(trie, key, null, 4)
             }, trie)
 
-            _.each(first10, function(prop){
+            _.each(keys, function(prop){
                 a.ok(!p.has(t, prop, null, 4))
             })
         })

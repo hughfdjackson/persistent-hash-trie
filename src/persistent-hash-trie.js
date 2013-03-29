@@ -62,7 +62,9 @@ var hash = function(str){
 // to allow hooks for other implementations/tests to override the default
 // hash and equality functions (which are the necessary ones for creating
 // hash-table-like behaviour, as the hash-trie has), they can be passed in
-// as opts to the CRUD functions.  The default ones covers the 80% use-case
+// as opts to assoc/dissoc/get/has.
+
+// These defaults cover the ~80% use case of unordered string:val pairs.
 var defaultOpts = {
     eq   : function(a, b){ return a === b },
     hash : hash
