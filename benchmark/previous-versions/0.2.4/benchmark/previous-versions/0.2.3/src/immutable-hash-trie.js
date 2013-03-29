@@ -2,7 +2,7 @@
 
 var util = require('./util')
 
-//# persistent Hash Trie
+//# Immutable Hash Trie
 
 // A Trie is a specialised version of a Tree, in which nodes can be found by navigating a 'path'.
 // For instance, a dictionary Trie may start with a root node, have A-Z as the child nodes.
@@ -25,14 +25,14 @@ var util = require('./util')
 // If we used the first 2 letters of a word, for instance, we'd end up with lots of
 // nodes in the 'un' and 'th' paths, and not many in the 'tx' path.
 
-// An persistent Hash Trie is a Hash Trie in which any commonly updating actions - removing,
+// An Immutable Hash Trie is a Hash Trie in which any commonly updating actions - removing,
 // setting or adding values - produce an entirely new Hash Trie, and *don't* affect the
 // original in any way.  This means that the Hash Tries can be shared safely; without fear
 // that updating them will result in a value changing in multiple places in a program.
 
 // To make this distinction clearer, the verbs 'set' and 'remove/delete' have been replaced
-// with assoc (associate a new value with an persistent Hash Trie), and dissoc (dissociate
-// an existing value with an persistent Hash Trie).
+// with assoc (associate a new value with an Immutable Hash Trie), and dissoc (dissociate
+// an existing value with an Immutable Hash Trie).
 
 //# Hashing functions
 
@@ -48,24 +48,13 @@ var hashMask = function(str, from, hash){
     return mask(hash(str), from)
 }
 
-
-// hash function for strings, based on Java's String.hashCode:
-// http://docs.oracle.com/javase/1.4.2/docs/api/java/lang/String.html#hashCode()
-var hash = function(str){
-    var h = 0
-    var l = str.length
-    for ( var i = 0; i < l; i += 1 )
-        h += str.charCodeAt(i) * 31 * l - i
-    return h
-}
-
 // to allow hooks for other implementations/tests to override the default
 // hash and equality functions (which are the necessary ones for creating
 // hash-table-like behaviour, as the hash-trie has), they can be passed in
 // as opts to the CRUD functions.  The default ones covers the 80% use-case
 var defaultOpts = {
-    eq   : function(a, b){ return a === b },
-    hash : hash
+    eq  : function(a, b){ return a === b },
+    hash: require('string-hash')
 }
 
 //# Node Types
@@ -171,7 +160,7 @@ var copyAdd = function(obj, key, val){
 // This is called path-copying, since the path from the root node to the new
 // node is copied form one datastructure to the other.  Since the vast majority
 // of data will lie in nodes beneathe these in sizable datastructures, this sharing
-// of data allows for persistent values to be updated relatively effeciently at large
+// of data allows for immutable values to be updated relatively effeciently at large
 // size.
 
 // The algorithm is also aware of 'specificity'; i.e. that a value need only be stored
@@ -316,27 +305,31 @@ var dissocFns = {
 // transient returns a mutable version of a Trie.
 
 // It achieves this by recursing down the Trie, finding all the Value nodes
-// (whether stored in a Trie directly, or in a Hashmap node), and adding
-// the values to a return value.
+// (whether stored in a Trie directly, or in a Hashmap node, and returning
+// an objects that eventually get merged together.
 
-//  (yay abusing mutability in small pieces, but keeping the function
-// pure from an API perspective)
-
-var transient = function(node, curr){
-    curr = curr || {}
-    transientFns[node.type](node, curr)
-    return curr
+var transient = function(node){
+    return transientFns[node.type](node)
 }
 
 var transientFns = {
-    trie: function(node, curr){
-        for ( var key in node.children ) transient(node.children[key], curr)
+    trie: function(trie){
+        var unpack = function(key){ return transient(trie.children[key]) }
+        var vals = util.map(keys(trie.children), unpack)
+        if ( vals.length > 0 ) return util.reduce(vals, util.extend)
+        else                   return {}
     },
-    value: function(node, curr){
-        curr[node.key] = node.value
+    value: function(value){
+        var o = {}
+        o[value.key] = value.value
+        return o
     },
-    hashmap: function(node, curr){
-        for ( var key in node.values ) transient(node.values[key], curr)
+    hashmap: function(node){
+        var vals = util.map(keys(node.values), function(key){
+            return transient(node.values[key])
+        })
+        if ( vals.length > 0 ) return util.reduce(vals, util.extend)
+        else                   return {}
     }
 }
 

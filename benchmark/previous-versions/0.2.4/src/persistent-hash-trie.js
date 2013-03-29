@@ -64,8 +64,9 @@ var hash = function(str){
 // hash-table-like behaviour, as the hash-trie has), they can be passed in
 // as opts to the CRUD functions.  The default ones covers the 80% use-case
 var defaultOpts = {
-    eq   : function(a, b){ return a === b },
-    hash : hash
+    eq  : function(a, b){ return a === b },
+
+    hash: hash
 }
 
 //# Node Types

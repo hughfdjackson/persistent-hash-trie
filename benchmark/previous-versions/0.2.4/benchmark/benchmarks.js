@@ -9,6 +9,7 @@ var has = require('./has')
 var get = require('./get')
 var transient = require('./transient')
 
+
 var suites = [
 	assoc(1),
 	assoc(10),

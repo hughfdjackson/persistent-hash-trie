@@ -19,9 +19,10 @@ var makeSuite = function(quantity){
 	}
 
 	test('current', require('..'))
-	test('v0.2.1', require('./previous-versions/0.2.1/'))
-	test('v0.2.2', require('./previous-versions/0.2.2/'))
+	// test('v0.2.1', require('./previous-versions/0.2.1/'))
+	// test('v0.2.2', require('./previous-versions/0.2.2/'))
 	test('v0.2.3', require('./previous-versions/0.2.3/'))
+	test('v0.2.4', require('./previous-versions/0.2.4/'))
 
 	return suite
 }
