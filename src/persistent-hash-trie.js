@@ -94,63 +94,6 @@ var Hashmap = function(values){
 
 //# Basic manipulation functions - has/get/assoc/dissoc
 
-// Node, String, (Int), (Object)-> Bool
-
-// Trie-equivalent of the 'in' operator.
-
-// Has recurses down a node, using hashMask to navigate a 'path' down branches.
-// If a value node is found, if its key is equal to the key provided, then the
-// Trie contains the key, and true is returned.
-
-// Hashmaps store values in the outermost leaves when necessary.  If they contain
-// a key, it also means that the key is in the trie,.
-var has = function(trie, key, opts, depth){
-    return hasFns[trie.type](trie, key, opts || defaultOpts, depth || 0)
-}
-
-var hasFns = {
-    trie: function(node, key, opts, depth){
-        var child = node.children[hashMask(key, depth, opts.hash)]
-        if ( child === undefined )    return false
-        else                          return has(child, key, opts, depth + 1)
-    },
-    value: function(node, key, opts){
-        return opts.eq(node.key, key)
-    },
-    hashmap: function(node, key, opts){
-        return key in node.values
-    }
-}
-
-// Node, String, (Int), (Object) -> Value
-
-// Trie-equivalent of dot or bracket syntax - retrieves a value assocaited with a key
-// or undefined.
-
-// get recurses down the Trie, similarly to has.  If it finds a matching key, instead
-// of returning true or false, however, it unpacks the value associated with the key
-// and returns that instead.
-var get = function(trie, key, opts, depth){
-    return getFns[trie.type](trie, key, opts || defaultOpts, depth || 0)
-}
-
-var getFns = {
-    trie: function(node, key, opts, depth){
-        var child = node.children[hashMask(key, depth, opts.hash)]
-        if ( child === undefined )    return undefined
-        else                          return get(child, key, opts, depth + 1)
-    },
-    value: function(node, key, opts, depth){
-        if ( opts.eq(node.key, key) ) return node.value
-    },
-    hashmap: function(node, key, opts, depth){
-        var value = node.values[key]
-        return  value ? value.value : undefined
-
-    }
-}
-
-
 // Object, String, JSValue -> Object
 
 // creates a shallow clone of an object, adding or replacing a key:val pair
@@ -314,6 +257,65 @@ var dissocFns = {
 }
 
 
+// Node, String, (Int), (Object)-> Bool
+
+// Trie-equivalent of the 'in' operator.
+
+// Has recurses down a node, using hashMask to navigate a 'path' down branches.
+// If a value node is found, if its key is equal to the key provided, then the
+// Trie contains the key, and true is returned.
+
+// Hashmaps store values in the outermost leaves when necessary.  If they contain
+// a key, it also means that the key is in the trie,.
+var has = function(trie, key, opts, depth){
+    return hasFns[trie.type](trie, key, opts || defaultOpts, depth || 0)
+}
+
+var hasFns = {
+    trie: function(node, key, opts, depth){
+        var child = node.children[hashMask(key, depth, opts.hash)]
+        if ( child === undefined )    return false
+        else                          return has(child, key, opts, depth + 1)
+    },
+    value: function(node, key, opts){
+        return opts.eq(node.key, key)
+    },
+    hashmap: function(node, key, opts){
+        return key in node.values
+    }
+}
+
+// Node, String, (Int), (Object) -> Value
+
+// Trie-equivalent of dot or bracket syntax - retrieves a value assocaited with a key
+// or undefined.
+
+// get recurses down the Trie, similarly to has.  If it finds a matching key, instead
+// of returning true or false, however, it unpacks the value associated with the key
+// and returns that instead.
+var get = function(trie, key, opts, depth){
+    return getFns[trie.type](trie, key, opts || defaultOpts, depth || 0)
+}
+
+var getFns = {
+    trie: function(node, key, opts, depth){
+        var child = node.children[hashMask(key, depth, opts.hash)]
+        if ( child === undefined )    return undefined
+        else                          return get(child, key, opts, depth + 1)
+    },
+    value: function(node, key, opts, depth){
+        if ( opts.eq(node.key, key) ) return node.value
+    },
+    hashmap: function(node, key, opts, depth){
+        var value = node.values[key]
+        return  value ? value.value : undefined
+
+    }
+}
+
+
+
+
 // Node -> Object
 
 // mutable returns a mutable version of a Trie.
@@ -333,7 +335,7 @@ var mutable = function(node, curr){
 
 var mutableFns = {
     trie: function(node, curr){
-        for ( var key in node.children ) mutable(node.children[key], curr)
+        for ( var path in node.children ) mutable(node.children[path], curr)
     },
     value: function(node, curr){
         curr[node.key] = node.value
@@ -355,7 +357,7 @@ var keys = function(node, arr){
 
 var keysFns = {
     trie: function(node, arr){
-        for ( var key in node.children ) keys(node.children[key], arr)
+        for ( var path in node.children ) keys(node.children[path], arr)
     },
     value: function(node, arr){
         arr.push(node.key)
