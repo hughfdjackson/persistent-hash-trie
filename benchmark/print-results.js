@@ -9,7 +9,7 @@ var print = function(){
 	log('Results:')
 
 	this.map(function(results){
-		log(results.name + ' : ' + results.count + ' ± ' + results.stats.rme + '%')
+		log(results.name + ' : ' + results.count + ' ± ' + results.stats.rme + '% ops/sec')
 	})
 }
 
