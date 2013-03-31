@@ -15,7 +15,8 @@
     "benchmark": "1.0.0",
     "microtime": "0.3.3",
     "better-stack-traces": "0.0.4",
-    "string-hash": "1.1.0"
+    "string-hash": "1.1.0",
+    "format-number": "0.0.0"
   },
   "repository": {
     "type": "git",

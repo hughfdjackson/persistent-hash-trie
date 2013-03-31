@@ -1,6 +1,7 @@
 'use strict'
 
 var log = console.log.bind(console)
+var formatNumber = require('format-number')({ truncate: 2 })
 
 var print = function(){
 	log('')
@@ -9,7 +10,7 @@ var print = function(){
 	log('Results:')
 
 	this.map(function(results){
-		log(results.name + ' : ' + results.count + ' ± ' + results.stats.rme + '% ops/sec')
+		log(results.name + ' : ' + formatNumber(results.hz) + ' ± ' + formatNumber(results.stats.rme) + '% ops/sec')
 	})
 }
 
