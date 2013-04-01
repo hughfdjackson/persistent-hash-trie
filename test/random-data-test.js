@@ -5,7 +5,7 @@ var p = require('..')
 var _ = require('lodash')
 var gen = require('../benchmark/gen-data')
 var log = function(msg){
-    console && typeof console.log === 'function' && console.log(msg)
+    typeof console && typeof console.log === 'function' && console.log(msg)
 }
 
 
