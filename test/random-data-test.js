@@ -1,7 +1,5 @@
 'use strict'
 
-require('better-stack-traces')
-
 var a = require('assert')
 var p = require('..')
 var _ = require('lodash')
