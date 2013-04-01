@@ -10,7 +10,39 @@ var log = function(msg){
     console && typeof console.log === 'function' && console.log(msg)
 }
 
-describe('assoc/dissoc/has/get', function(){
+
+describe('assoc', function(){
+    it('should have 3 params', function(){
+        a.equal(p.get.length, 3)
+    })
+})
+
+describe('dissoc', function(){
+    it('should have 4 params', function(){
+        a.equal(p.get.length, 3)
+    })
+})
+
+describe('get', function(){
+    it('should have 3 params', function(){
+        a.equal(p.get.length, 3)
+    })
+})
+
+describe('has', function(){
+    it('should have 3 params', function(){
+        a.equal(p.has.length, 3)
+    })
+})
+
+describe('keys', function(){
+    it('should have 1 param', function(){
+        a.equal(p.keys.length, 1)
+    })
+})
+
+describe('assoc/dissoc/has/get together', function(){
+
     it('should be able to assoc/get', function(){
         var t = p.assoc(p.Trie(), 'key', 'value')
 

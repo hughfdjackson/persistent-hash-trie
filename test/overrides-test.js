@@ -17,7 +17,7 @@ describe('overriding default hash and eq opts', function(){
 
     it('should be available in dissoc', function(){
         var t = p.assoc(p.Trie(), 'key', 'value', opts)
-        var t = p.dissoc(t, 'some-non-present-key', opts)
+        t = p.dissoc(t, 'some-non-present-key', opts)
 
         a.ok(_.isEmpty(t.children))
     })

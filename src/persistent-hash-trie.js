@@ -1,6 +1,7 @@
 'use strict'
 
 var util = require('./util')
+var lib = module.exports = {}
 
 //# persistent Hash Trie
 
@@ -74,20 +75,20 @@ var defaultOpts = {
 
 // Object -> Trie
 // a Trie is a store of children values; the most basic type of non-leaf node.
-var Trie = function(children){
+var Trie = lib.Trie = function(children){
     return { type: 'trie', children: children || {} }
 }
 
 // String, JSValue -> Value
 // Node that represents a specific value
-var Value = function(key, value){
+var Value = lib.Value = function(key, value){
     return { type: 'value', key: key, value: value }
 }
 
 // { JSValue } -> Hashmap
 // a Trie will have a max depth of 7 (6, if 0 indexed).  After that, additional
 // values will just slung into a hashmap node
-var Hashmap = function(values){
+var Hashmap = lib.Hashmap = function(values){
     return { type: 'hashmap', values: values }
 }
 
@@ -125,9 +126,12 @@ var copyAdd = function(obj, key, val){
 // Trie, then they most be stored in a sub-Trie, and use the following 5 bits to differenciate
 // themselves.  If the Trie gets deeper than there are bits in the hash (i.e. a total hash collision)
 // then it simply stores the objects in a Hashmap node.
+lib.assoc = function(node, key, val, opts){
+    return assoc(node, key, val, opts || defaultOpts, 0)
+}
 
 var assoc = function(node, key, val, opts, depth){
-    return assocFns[node.type](node, key, val, opts || defaultOpts, depth || 0)
+    return assocFns[node.type](node, key, val, opts, depth)
 }
 
 var assocFns = {
@@ -206,8 +210,12 @@ var copyDissoc = function(obj, key){
 // If removing a value removes a hash collision, then the Trie node that contained
 // those values can be replaced with just a Value node, which results in a shallower
 // Trie.
+lib.dissoc = function(node, key, opts){
+    return dissoc(node, key, opts || defaultOpts, 0)
+}
+
 var dissoc = function(node, key, opts, depth){
-    return dissocFns[node.type](node, key, opts || defaultOpts, depth || 0)
+    return dissocFns[node.type](node, key, opts, depth)
 }
 
 var dissocFns = {
@@ -267,8 +275,12 @@ var dissocFns = {
 
 // Hashmaps store values in the outermost leaves when necessary.  If they contain
 // a key, it also means that the key is in the trie,.
+lib.has = function(trie, key, opts){
+    return has(trie, key, opts || defaultOpts, 0)
+}
+
 var has = function(trie, key, opts, depth){
-    return hasFns[trie.type](trie, key, opts || defaultOpts, depth || 0)
+    return hasFns[trie.type](trie, key, opts, depth)
 }
 
 var hasFns = {
@@ -293,8 +305,12 @@ var hasFns = {
 // get recurses down the Trie, similarly to has.  If it finds a matching key, instead
 // of returning true or false, however, it unpacks the value associated with the key
 // and returns that instead.
+lib.get = function(trie, key, opts){
+    return get(trie, key, opts || defaultOpts, 0)
+}
+
 var get = function(trie, key, opts, depth){
-    return getFns[trie.type](trie, key, opts || defaultOpts, depth || 0)
+    return getFns[trie.type](trie, key, opts, depth)
 }
 
 var getFns = {
@@ -314,8 +330,6 @@ var getFns = {
 }
 
 
-
-
 // Node -> Object
 
 // mutable returns a mutable version of a Trie.
@@ -326,9 +340,11 @@ var getFns = {
 
 //  (yay abusing mutability in small pieces, but keeping the function
 // pure from an API perspective)
+lib.mutable = function(node){
+    return mutable(node, {})
+}
 
 var mutable = function(node, curr){
-    curr = curr || {}
     mutableFns[node.type](node, curr)
     return curr
 }
@@ -349,8 +365,11 @@ var mutableFns = {
 
 // keys returns the keys stored in the array, like Object.keys
 // implemented similarly to `mutable`
+lib.keys = function(node){
+    return keys(node, [])
+}
+
 var keys = function(node, arr){
-    arr = arr || []
     keysFns[node.type](node, arr)
     return arr
 }
@@ -365,16 +384,4 @@ var keysFns = {
     hashmap: function(node, arr){
         for ( var key in node.values ) keys(node.values[key], arr)
     }
-}
-
-module.exports = {
-    Trie    : Trie,
-    Value   : Value,
-    Hashmap : Hashmap,
-    has     : has,
-    get     : get,
-    assoc   : assoc,
-    dissoc  : dissoc,
-    mutable : mutable,
-    keys    : keys
 }
