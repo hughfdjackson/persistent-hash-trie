@@ -39,6 +39,13 @@ describe('keys', function(){
     it('should have 1 param', function(){
         a.equal(p.keys.length, 1)
     })
+
+    it('should be unaffected by changing the prototype', function(){
+        Object.prototype.foo = 'bar'
+        a.deepEqual(p.keys(p.Trie()), [])
+
+        delete Object.prototype.foo
+    })
 })
 
 describe('assoc/dissoc/has/get together', function(){

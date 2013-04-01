@@ -1,7 +1,7 @@
 'use strict'
 
 var util = require('./util')
-var lib = module.exports = {}
+var lib = module.exports
 
 //# persistent Hash Trie
 
@@ -351,13 +351,13 @@ var mutable = function(node, curr){
 
 var mutableFns = {
     trie: function(node, curr){
-        for ( var path in node.children ) mutable(node.children[path], curr)
+        for ( var path in node.children ) if ( node.children.hasOwnProperty(path) ) mutable(node.children[path], curr)
     },
     value: function(node, curr){
         curr[node.key] = node.value
     },
     hashmap: function(node, curr){
-        for ( var key in node.values ) mutable(node.values[key], curr)
+        for ( var key in node.values ) if ( node.values.hasOwnProperty(key) ) mutable(node.values[key], curr)
     }
 }
 
@@ -376,12 +376,12 @@ var keys = function(node, arr){
 
 var keysFns = {
     trie: function(node, arr){
-        for ( var path in node.children ) keys(node.children[path], arr)
+        for ( var path in node.children ) if ( node.children.hasOwnProperty(path) ) keys(node.children[path], arr)
     },
     value: function(node, arr){
         arr.push(node.key)
     },
     hashmap: function(node, arr){
-        for ( var key in node.values ) keys(node.values[key], arr)
+        for ( var key in node.values ) if ( node.values.hasOwnProperty(key) ) keys(node.values[key], arr)
     }
 }

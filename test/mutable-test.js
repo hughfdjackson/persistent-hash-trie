@@ -16,4 +16,12 @@ describe('mutable', function(){
         var o = p.mutable(t2)
         a.deepEqual(o, { key: 'value', 'other-key': 'other-value' })
     })
+
+    it('should be unaffected by changing the prototype', function(){
+        Object.prototype.foo = 'bar'
+        a.deepEqual(p.mutable(p.Trie()), {})
+
+        delete Object.prototype.foo
+    })
+
 })
