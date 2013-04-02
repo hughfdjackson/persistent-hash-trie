@@ -9,6 +9,7 @@ var has = require('./has')
 var get = require('./get')
 var mutable = require('./mutable')
 var keys = require('./keys')
+var hash = require('./hash')
 
 var suites = [
 	assoc(1),
@@ -41,6 +42,19 @@ var suites = [
 	keys(10),
 	keys(100),
 	keys(1000)
+
+	// hash(1),
+	// hash(3),
+	// hash(5),
+	// hash(10),
+	// hash(50),
+	// hash(100),
+	// hash(500),
+	// hash(1000),
+	// hash(5000),
+	// hash(10000),
+	// hash(50000),
+	// hash(100000),
 ]
 
 _.each(suites, run)

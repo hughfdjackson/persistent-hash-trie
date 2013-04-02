@@ -7,7 +7,6 @@ var print = function(){
 	log('')
 	log(this.name)
 	log('//-------------------------//')
-	log('Results:')
 
 	this.map(function(results){
 		log(results.name + ' : ' + formatNumber(results.hz) + ' ± ' + formatNumber(results.stats.rme) + '% ops/sec')
