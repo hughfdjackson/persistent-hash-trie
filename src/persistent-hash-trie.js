@@ -1,6 +1,7 @@
 'use strict'
 
 var util = require('./util')
+var hash = require('./hash')
 var lib = module.exports
 
 //# persistent Hash Trie
@@ -35,29 +36,6 @@ var lib = module.exports
 // with assoc (associate a new value with an persistent Hash Trie), and dissoc (dissociate
 // an existing value with an persistent Hash Trie).
 
-//# Hashing functions
-
-// Int, Int -> Int
-// gets a <= 5 bit section of a hash, shifted from the left position
-// in practice, a 32 bit splits into 7 chunks - 6 of 5 bits, one of 2
-var mask = function(hash, from){ return (hash >>> from) & 0x01f }
-
-// String, Int, Function -> Int
-// gets a chunk of a hash, given a string and a hashing function
-// the hashing function should return a 32 bit hash.
-var hashMask = function(str, from, hash){
-    return mask(hash(str), from)
-}
-
-// hash function for strings, based on Java's String.hashCode:
-// http://docs.oracle.com/javase/1.4.2/docs/api/java/lang/String.html#hashCode()
-var hash = function(str){
-    var h = 0
-    var l = str.length
-    for ( var i = 0; i < l; i += 1 )
-        h = h * 31 + str.charCodeAt(i)
-    return h
-}
 
 
 // to allow hooks for other implementations/tests to override the default
@@ -68,7 +46,7 @@ var hash = function(str){
 // These defaults cover the ~80% use case of unordered string:val pairs.
 var defaultOpts = {
     eq   : function(a, b){ return a === b },
-    hash : hash
+    hash : hash.hash
 }
 
 //# Node Types
@@ -136,15 +114,15 @@ var assoc = function(node, key, val, opts, depth){
 
 var assocFns = {
     trie: function(node, key, val, opts, depth){
-        var path = hashMask(key, depth, opts.hash)
+        var path = hash.mask(key, depth, opts.hash)
         var child = node.children[path]
 
         if ( child === undefined  ) return Trie(copyAdd(node.children, path, Value(key, val)))
         else                        return Trie(copyAdd(node.children, path, assoc(child, key, val, opts, depth + 1)))
     },
     value: function(node, key, val, opts, depth){
-        var nodePath = hashMask(node.key, depth, opts.hash)
-        var keyPath  = hashMask(key, depth, opts.hash)
+        var nodePath = hash.mask(node.key, depth, opts.hash)
+        var keyPath  = hash.mask(key, depth, opts.hash)
 
         var makeHashmap = function(){
             var children = {}
@@ -220,7 +198,7 @@ var dissoc = function(node, key, opts, depth){
 
 var dissocFns = {
     trie: function(node, key, opts, depth){
-        var path = hashMask(key, depth, opts.hash)
+        var path = hash.mask(key, depth, opts.hash)
         var child = node.children[path]
 
         // handle the 'present key' cases.  If it's a Value, remove it.  If it's a sub-Trie or Hashmap
@@ -269,7 +247,7 @@ var dissocFns = {
 
 // Trie-equivalent of the 'in' operator.
 
-// Has recurses down a node, using hashMask to navigate a 'path' down branches.
+// Has recurses down a node, using hash.mask to navigate a 'path' down branches.
 // If a value node is found, if its key is equal to the key provided, then the
 // Trie contains the key, and true is returned.
 
@@ -285,7 +263,7 @@ var has = function(trie, key, opts, depth){
 
 var hasFns = {
     trie: function(node, key, opts, depth){
-        var child = node.children[hashMask(key, depth, opts.hash)]
+        var child = node.children[hash.mask(key, depth, opts.hash)]
         if ( child === undefined )    return false
         else                          return has(child, key, opts, depth + 1)
     },
@@ -315,7 +293,7 @@ var get = function(trie, key, opts, depth){
 
 var getFns = {
     trie: function(node, key, opts, depth){
-        var child = node.children[hashMask(key, depth, opts.hash)]
+        var child = node.children[hash.mask(key, depth, opts.hash)]
         if ( child === undefined )    return undefined
         else                          return get(child, key, opts, depth + 1)
     },

@@ -155,5 +155,3 @@ describe('using random data', function(){
     testWithData(gen(1000, seed))
     testWithData(gen(10000, seed))
 })
-
-
