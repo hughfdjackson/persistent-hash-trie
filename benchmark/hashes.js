@@ -43,9 +43,9 @@ var zobel = function(str){
 
 module.exports = {
 	djb2: require('string-hash'),
-	java: require('../src/hash').hash,
-	'bad java': rubbishJava,
-	chash: function(key){ return chash(key, max32bit) },
-	sedgewick: sedgewick,
-	zobel: zobel
+	java: require('../src/hash').hash
+	// 'bad java': rubbishJava,
+	// chash: function(key){ return chash(key, max32bit) },
+	// sedgewick: sedgewick,
+	// zobel: zobel
 }

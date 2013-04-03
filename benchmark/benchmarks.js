@@ -54,7 +54,7 @@ var suites = [
 	// hash(5000),
 	// hash(10000),
 	// hash(50000),
-	// hash(100000),
+	// hash(100000)
 ]
 
 _.each(suites, run)

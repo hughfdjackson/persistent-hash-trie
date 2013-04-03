@@ -25,8 +25,16 @@ var makeWord = function(){
 	return repeat(randInt(10), function(){ return choose(chars) }).join('')
 }
 
+var makeInt = function(){
+	var len = randInt(10)
+	return repeat(len, function(){ return randInt(9) }).join('')
+}
+
 module.exports = {
 	words: function(len){
 		return repeat(len, makeWord)
+	},
+	ints: function(len){
+		return repeat(len, makeInt)
 	}
 }
