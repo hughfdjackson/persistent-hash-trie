@@ -77,6 +77,36 @@ var trie = p.assoc(p.Trie(), 'key', 'val')
 p.keys(trie) //= ['key']
 ```
 
+### reduce
+
+The traditional reduce - requires seed.
+
+```javascript
+// definition of `mutable` using reduce:
+
+var mutable = function(node){
+    return p.reduce(node, addKeyVal, {})
+}
+
+var addKeyVal = function(o, val, key){
+    o[key] = val
+    return o
+}
+```
+
+Can be cancelled early:
+
+```javascript
+
+var some = function(node, predicate){
+	return p.reduce(node, function(seed, value){
+		if ( !predicate(value)) throw new p.reduce.Break(false)
+		else                    return true
+	}, true)
+}
+```
+
+
 ### Extending assoc/dissoc/get/has
 
 The hashing and equality functions used on the keys can be overidden by passing an opts object to `assoc`, `dissoc`, `get` and `has`.
