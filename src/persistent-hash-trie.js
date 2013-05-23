@@ -308,62 +308,6 @@ var getFns = {
 }
 
 
-// Node -> Object
-
-// mutable returns a mutable version of a Trie.
-
-// It achieves this by recursing down the Trie, finding all the Value nodes
-// (whether stored in a Trie directly, or in a Hashmap node), and adding
-// the values to a return value.
-
-//  (yay abusing mutability in small pieces, but keeping the function
-// pure from an API perspective)
-lib.mutable = function(node){
-    return mutable(node, {})
-}
-
-var mutable = function(node, curr){
-    mutableFns[node.type](node, curr)
-    return curr
-}
-
-var mutableFns = {
-    trie: function(node, curr){
-        for ( var path in node.children ) if ( node.children.hasOwnProperty(path) ) mutable(node.children[path], curr)
-    },
-    value: function(node, curr){
-        curr[node.key] = node.value
-    },
-    hashmap: function(node, curr){
-        for ( var key in node.values ) if ( node.values.hasOwnProperty(key) ) mutable(node.values[key], curr)
-    }
-}
-
-// Node -> [String]
-
-// keys returns the keys stored in the array, like Object.keys
-// implemented similarly to `mutable`
-lib.keys = function(node){
-    return keys(node, [])
-}
-
-var keys = function(node, arr){
-    keysFns[node.type](node, arr)
-    return arr
-}
-
-var keysFns = {
-    trie: function(node, arr){
-        for ( var path in node.children ) if ( node.children.hasOwnProperty(path) ) keys(node.children[path], arr)
-    },
-    value: function(node, arr){
-        arr.push(node.key)
-    },
-    hashmap: function(node, arr){
-        for ( var key in node.values ) if ( node.values.hasOwnProperty(key) ) keys(node.values[key], arr)
-    }
-}
-
 
 // Node, (Any, Any, String), Any -> Any
 
@@ -396,3 +340,37 @@ var reduceFns = {
 
 
 lib.reduce.Break = function(v){ this.value = v }
+
+
+
+// Node -> Object
+
+// mutable returns a mutable version of a Trie.
+
+// It achieves this by recursing down the Trie, finding all the Value nodes
+// (whether stored in a Trie directly, or in a Hashmap node), and adding
+// the values to a return value.
+
+//  (yay abusing mutability in small pieces, but keeping the function
+// pure from an API perspective)
+lib.mutable = function(node){
+    return lib.reduce(node, addKeyVal, {})
+}
+
+var addKeyVal = function(o, val, key){
+    o[key] = val
+    return o
+}
+
+// Node -> [String]
+
+// keys returns the keys stored in the array, like Object.keys
+// implemented similarly to `mutable`
+lib.keys = function(node){
+    return lib.reduce(node, addKey, [])
+}
+
+var addKey = function(arr, val, key){
+    arr.push(key)
+    return arr
+}
