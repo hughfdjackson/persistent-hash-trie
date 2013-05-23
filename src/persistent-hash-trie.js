@@ -375,7 +375,6 @@ var addKeyVal = function(o, val, key){
 // Node -> [String]
 
 // keys returns the keys stored in the array, like Object.keys
-// implemented similarly to `mutable`
 lib.keys = function(node){
     return lib.reduce(node, addKey, [])
 }

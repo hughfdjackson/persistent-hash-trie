@@ -5,7 +5,6 @@
   "main": "src/persistent-hash-trie.js",
   "scripts": {
     "test": "mocha",
-    "prepublish": "npm test",
     "benchmark": "node benchmark/benchmarks.js"
   },
   "dependencies": {
