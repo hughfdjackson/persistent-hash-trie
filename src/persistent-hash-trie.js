@@ -1,4 +1,4 @@
-'use strict'
+'use strict';
 
 var util = require('./util')
 var hash = require('./hash')
@@ -363,3 +363,36 @@ var keysFns = {
         for ( var key in node.values ) if ( node.values.hasOwnProperty(key) ) keys(node.values[key], arr)
     }
 }
+
+
+// Node, (Any, Any, String), Any -> Any
+
+// given a node, function and seed, reduce to produce results.
+lib.reduce = function(node, callback, seed){
+    try {
+        return reduce(node, callback, { seed: seed }).seed
+    } catch(e) {
+        if ( e instanceof lib.reduce.Break ) return e.value;
+        else                                 throw e;
+    }
+}
+
+var reduce = function(node, callback, state) {
+    reduceFns[node.type](node, callback, state)
+    return state
+}
+
+var reduceFns = {
+    trie: function(node, callback, state){
+        for ( var path in node.children ) if ( node.children.hasOwnProperty(path) ) reduce(node.children[path], callback, state)
+    },
+    value: function(node, callback, state){
+        state.seed = callback(state.seed, node.value, node.key)
+    },
+    hashmap: function(node, callback, state){
+        for ( var key in node.values ) if ( node.values.hasOwnProperty(key) ) reduce(node.values[key], callback, state)
+    }
+}
+
+
+lib.reduce.Break = function(v){ this.value = v }
