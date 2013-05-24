@@ -1,7 +1,7 @@
 {
   "name": "persistent-hash-trie",
   "description": "Pure string:val storage, using structural sharing",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "main": "src/persistent-hash-trie.js",
   "scripts": {
     "test": "mocha",
