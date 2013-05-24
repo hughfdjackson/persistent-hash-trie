@@ -100,7 +100,7 @@ Can be cancelled early:
 
 var some = function(node, predicate){
 	return p.reduce(node, function(seed, value){
-		if ( !predicate(value)) throw new p.reduce.Break(false)
+		if ( !predicate(value)) return p.reduce.Break(false)
 		else                    return true
 	}, true)
 }
