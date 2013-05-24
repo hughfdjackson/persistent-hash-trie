@@ -312,34 +312,44 @@ var getFns = {
 // Node, (Any, Any, String), Any -> Any
 
 // given a node, function and seed, reduce to produce results.
-lib.reduce = function(node, callback, seed){
-    try {
-        return reduce(node, callback, { seed: seed }).seed
-    } catch(e) {
-        if ( e instanceof lib.reduce.Break ) return e.value;
-        else                                 throw e;
-    }
+lib.reduce = function(node, callback, initial){
+    var state = reduce(node, callback, initial)
+    return state instanceof Break ? state.value : state
 }
 
-var reduce = function(node, callback, state) {
-    reduceFns[node.type](node, callback, state)
-    return state
+var reduce = function(node, callback, initial) {
+    return reduceFns[node.type](node, callback, initial)
 }
 
 var reduceFns = {
-    trie: function(node, callback, state){
-        for ( var path in node.children ) if ( node.children.hasOwnProperty(path) ) reduce(node.children[path], callback, state)
+    trie: function(node, callback, state) {
+        for ( var path in node.children ) {
+            if ( node.children.hasOwnProperty(path) ) {
+                state = reduce(node.children[path], callback, state)
+            }
+            if (state instanceof Break) break
+        }
+        return state
     },
     value: function(node, callback, state){
-        state.seed = callback(state.seed, node.value, node.key)
+        return callback(state, node.value, node.key)
     },
     hashmap: function(node, callback, state){
-        for ( var key in node.values ) if ( node.values.hasOwnProperty(key) ) reduce(node.values[key], callback, state)
+        for ( var key in node.values ) {
+            if ( node.values.hasOwnProperty(key) ) {
+                state = reduce(node.values[key], callback, state)
+            }
+            if (state instanceof Break) break
+        }
+        return state
     }
 }
 
 
-lib.reduce.Break = function(v){ this.value = v }
+var Break = lib.reduce.Break = function(v) {
+    if (!(this instanceof Break)) return new Break(v)
+    this.value = v
+}
 
 
 
