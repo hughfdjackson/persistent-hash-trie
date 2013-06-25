@@ -33,28 +33,28 @@ var suites = [
 	get(100),
 	get(1000),
 
-	mutable(1),
-	mutable(10),
-	mutable(100),
-	mutable(1000),
+// 	mutable(1),
+// 	mutable(10),
+// 	mutable(100),
+// 	mutable(1000),
 
-	keys(1),
-	keys(10),
-	keys(100),
-	keys(1000)
+// 	keys(1),
+// 	keys(10),
+// 	keys(100),
+//	keys(1000)
 
-	// hash(1),
-	// hash(3),
-	// hash(5),
-	// hash(10),
-	// hash(50),
-	// hash(100),
-	// hash(500),
-	// hash(1000),
-	// hash(5000),
-	// hash(10000),
-	// hash(50000),
-	// hash(100000)
+// 	hash(1),
+// 	hash(3),
+// 	hash(5),
+// 	hash(10),
+// 	hash(50),
+// 	hash(100),
+// 	hash(500),
+// 	hash(1000),
+// 	hash(5000),
+// 	hash(10000),
+// 	hash(50000),
+// 	hash(100000)
 ]
 
 _.each(suites, run)
