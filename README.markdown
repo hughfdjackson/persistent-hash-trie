@@ -1,3 +1,8 @@
+# NOTE
+This project is no longer actively supported.  If anyone is interested in becoming the new maintainer, don't hesitate to contact me (hughfdjackson@googlemail.com).
+
+For an alternative, consider [https://npmjs.org/package/mori](https://npmjs.org/package/mori). 
+
 # persistent-hash-trie
 
 Pure string:val storage, using structural sharing.
